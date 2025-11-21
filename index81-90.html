@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>JavaScript DOM & Canvas Games — Exercises 81–90</title>
+<style>
+  :root{--bg:#0f172a;--panel:#111827;--card:#1f2937;--accent:#60a5fa;--ok:#10b981;--bad:#ef4444;--muted:#9ca3af}
+  body{margin:0;background:var(--bg);color:#e5e7eb;font:15px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  header{padding:1.1rem 1.2rem .4rem}
+  h1{margin:0;font-size:1.35rem}
+  .wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;padding:12px}
+  .card{background:var(--card);border:1px solid #111;border-radius:14px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+  .card header{background:var(--panel);padding:.8rem 1rem;border-bottom:1px solid #000}
+  .card h2{margin:0;font-size:1rem}
+  .card .body{padding:.8rem 1rem}
+  .meta{font-size:.9rem;color:var(--muted);margin:.3rem 0 .6rem}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  button{background:var(--accent);border:0;color:#06121f;padding:.5rem .8rem;border-radius:10px;cursor:pointer;font-weight:600}
+  .small{font-size:.85rem;color:#9ca3af}
+  .note{font-size:.9rem;color:#cbd5e1}
+  .arena{position:relative;width:300px;height:190px;border:1px solid #000;border-radius:10px;background:#0b1220;overflow:hidden}
+  .grid{display:grid;gap:6px}
+  .grid-3{grid-template-columns:repeat(3,1fr)}
+  .cell{height:40px;border-radius:8px;border:1px solid #000;background:#0b1220;display:grid;place-items:center;cursor:pointer}
+  canvas{background:#0b1220;border-radius:10px;border:1px solid #000;display:block}
+  .slot{width:34px;height:34px;border:1px dashed #444;border-radius:8px;display:grid;place-items:center;font-weight:700}
+  .tile{width:34px;height:34px;border:1px solid #000;border-radius:8px;background:#111;display:grid;place-items:center;font-weight:800;cursor:grab}
+  .pad{display:inline-grid;grid-template-columns:repeat(3,1fr);gap:4px}
+  .testbar{position:sticky;bottom:0;background:#030712cc;border-top:1px solid #000;padding:.6rem 1rem;display:flex;gap:8px;backdrop-filter: blur(6px)}
+  .pill{border-radius:999px;padding:.1rem .5rem;border:1px solid #000}
+  .ok{background:#064e3b;color:#d1fae5}
+  .badpill{background:#7f1d1d;color:#fee2e2}
+</style>
+</head>
+<body>
+<header>
+  <h1>JavaScript DOM & Canvas Games — Exercises 81–90</h1>
+  <p class="small">Vanilla JS mini-projects. Use the button at the bottom to run a quick sanity test.</p>
+</header>
+
+<div class="wrap">
+
+  <!-- 81) Bubble Pop Challenge -->
+  <section class="card" id="ex81">
+    <header><h2>81) Bubble Pop Challenge</h2></header>
+    <div class="body">
+      <div class="meta">Click/tap moving bubbles before they fade.</div>
+      <div class="row"><button id="ex81-start">Start</button> ⏱ <b id="ex81-t">20</b>s · Score: <b id="ex81-score">0</b></div>
+      <canvas id="ex81-c" width="300" height="190"></canvas>
+      <p class="note"><strong>Outcomes:</strong> canvas loop, object spawn/lifecycle, hit tests.</p>
+    </div>
+  </section>
+
+  <!-- 82) Word Builder Puzzle -->
+  <section class="card" id="ex82">
+    <header><h2>82) Word Builder Puzzle</h2></header>
+    <div class="body">
+      <div class="meta">Drag letters into slots to form the word.</div>
+      <div class="row"><button id="ex82-new">New</button> Word length: <b id="ex82-len">—</b></div>
+      <div class="row" style="margin-top:6px;gap:10px">
+        <div id="ex82-tiles" class="row" style="gap:6px"></div>
+        <div id="ex82-slots" class="row" style="gap:6px"></div>
+      </div>
+      <div class="row">Result: <b id="ex82-res">—</b></div>
+      <p class="note"><strong>Outcomes:</strong> HTML5 Drag & Drop, DOM state validation.</p>
+    </div>
+  </section>
+
+  <!-- 83) Platform Jumper (Mini) -->
+  <section class="card" id="ex83">
+    <header><h2>83) Platform Jumper (Mini)</h2></header>
+    <div class="body">
+      <div class="meta">Arrow keys to move; Space to jump. Land on platforms.</div>
+      <div class="row"><button id="ex83-start">Start</button> Score: <b id="ex83-score">0</b></div>
+      <canvas id="ex83-c" width="300" height="190"></canvas>
+      <p class="note"><strong>Outcomes:</strong> gravity, velocity, AABB collisions.</p>
+    </div>
+  </section>
+
+  <!-- 84) Color Mixer Lab -->
+  <section class="card" id="ex84">
+    <header><h2>84) Color Mixer Lab</h2></header>
+    <div class="body">
+      <div class="meta">Match the target color using RGB sliders (±12 tolerance).</div>
+      <div class="row">Target: <b id="ex84-target">rgb(?, ?, ?)</b>
+        <span id="ex84-chip" style="display:inline-block;width:20px;height:20px;border-radius:6px;border:1px solid #000"></span>
+      </div>
+      <div class="row" style="gap:16px">
+        <label>R <input id="ex84-r" type="range" min="0" max="255" value="0"></label>
+        <label>G <input id="ex84-g" type="range" min="0" max="255" value="0"></label>
+        <label>B <input id="ex84-b" type="range" min="0" max="255" value="0"></label>
+        <button id="ex84-new">New</button>
+      </div>
+      <div class="row">Now: <b id="ex84-now">rgb(0,0,0)</b> · <b id="ex84-msg">—</b></div>
+      <p class="note"><strong>Outcomes:</strong> input events, CSS updates, tolerance checks.</p>
+    </div>
+  </section>
+
+  <!-- 85) AI Tic-Tac-Toe -->
+  <section class="card" id="ex85">
+    <header><h2>85) AI Tic-Tac-Toe</h2></header>
+    <div class="body">
+      <div class="meta">Play X against a simple minimax AI (O).</div>
+      <div class="grid grid-3" id="ex85-grid" style="margin-top:6px"></div>
+      <div class="row"><button id="ex85-new">Reset</button> Status: <b id="ex85-status">Your turn</b></div>
+      <p class="note"><strong>Outcomes:</strong> grid state, win checks, minimax search.</p>
+    </div>
+  </section>
+
+  <!-- 86) Falling Numbers Speed Test -->
+  <section class="card" id="ex86">
+    <header><h2>86) Falling Numbers Speed Test</h2></header>
+    <div class="body">
+      <div class="meta">Type numbers before they hit the ground.</div>
+      <div class="row"><button id="ex86-start">Start</button> ⏱ <b id="ex86-t">20</b>s · Score: <b id="ex86-score">0</b></div>
+      <canvas id="ex86-c" width="300" height="190"></canvas>
+      <p class="note"><strong>Outcomes:</strong> canvas draw, keyboard input, spawn pacing.</p>
+    </div>
+  </section>
+
+  <!-- 87) Light Reflection Simulator -->
+  <section class="card" id="ex87">
+    <header><h2>87) Light Reflection Simulator</h2></header>
+    <div class="body">
+      <div class="meta">Set mirror angle to reflect the beam into the goal.</div>
+      <div class="row"><label>Angle <input id="ex87-ang" type="range" min="-60" max="60" value="0"></label> <button id="ex87-new">New Goal</button></div>
+      <canvas id="ex87-c" width="300" height="190"></canvas>
+      <div class="row">Status: <b id="ex87-msg">Adjust angle…</b></div>
+      <p class="note"><strong>Outcomes:</strong> geometry, reflection, line intersections.</p>
+    </div>
+  </section>
+
+  <!-- 88) Path Painter Maze -->
+  <section class="card" id="ex88">
+    <header><h2>88) Path Painter Maze</h2></header>
+    <div class="body">
+      <div class="meta">Arrow keys to move. Paint every tile to win.</div>
+      <div class="row">Painted: <b id="ex88-count">0</b>/<b id="ex88-total">0</b> <button id="ex88-new">New</button></div>
+      <canvas id="ex88-c" width="300" height="190"></canvas>
+      <p class="note"><strong>Outcomes:</strong> grid navigation, visited state, win detection.</p>
+    </div>
+  </section>
+
+  <!-- 89) Audio Synth Keys -->
+  <section class="card" id="ex89">
+    <header><h2>89) Audio Synth Keys</h2></header>
+    <div class="body">
+      <div class="meta">Press A–L to play notes (simple sine osc).</div>
+      <div class="row">Volume <input id="ex89-vol" type="range" min="0" max="1" step="0.01" value="0.4"></div>
+      <div class="pad">
+        <div class="cell">A</div><div class="cell">S</div><div class="cell">D</div>
+        <div class="cell">F</div><div class="cell">G</div><div class="cell">H</div>
+        <div class="cell">J</div><div class="cell">K</div><div class="cell">L</div>
+      </div>
+      <p class="note"><strong>Outcomes:</strong> Web Audio API, oscillator nodes, key mapping.</p>
+    </div>
+  </section>
+
+  <!-- 90) Chart Race Animator -->
+  <section class="card" id="ex90">
+    <header><h2>90) Chart Race Animator</h2></header>
+    <div class="body">
+      <div class="meta">Watch bars race as values animate to new targets.</div>
+      <div class="row"><button id="ex90-start">Start</button> <button id="ex90-step">New Targets</button></div>
+      <canvas id="ex90-c" width="300" height="190"></canvas>
+      <p class="note"><strong>Outcomes:</strong> easing, interpolation, visualization.</p>
+    </div>
+  </section>
+
+</div>
+
+<!-- Test bar -->
+<div class="testbar">
+  <button id="run-tests">Run All Tests</button>
+  <span id="test-summary" class="pill ok hidden"></span>
+  <span id="test-errors" class="pill badpill hidden"></span>
+</div>
+
+<script>
+/* Utils */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const rand = n => Math.floor(Math.random()*n);
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+const wait = ms => new Promise(r=>setTimeout(r,ms));
+
+/* 81) Bubble Pop */
+(function(){
+  const c=$('#ex81-c'), ctx=c.getContext('2d'), start=$('#ex81-start'), tEl=$('#ex81-t'), scoreEl=$('#ex81-score');
+  let t=20, score=0, raf=0, last=0, objs=[], timer=0, running=false;
+  function spawn(){
+    const r=6+rand(12), x=r+rand(c.width-2*r), y=r+rand(c.height-2*r);
+    const vx=(Math.random()*120-60), vy=(Math.random()*120-60), life=2+Math.random()*2;
+    objs.push({x,y,r,vx,vy,life});
+  }
+  function loop(ts){
+    if(!running) return;
+    if(!last) last=ts; const dt=(ts-last)/1000; last=ts;
+    ctx.clearRect(0,0,c.width,c.height);
+    if(Math.random()<0.08) spawn();
+    objs.forEach(o=>{ o.x+=o.vx*dt; o.y+=o.vy*dt; o.life-=dt;
+      if(o.x<o.r||o.x>c.width-o.r) o.vx*=-1;
+      if(o.y<o.r||o.y>c.height-o.r) o.vy*=-1;
+    });
+    objs = objs.filter(o=>o.life>0);
+    ctx.fillStyle='#60a5fa';
+    objs.forEach(o=>{ ctx.beginPath(); ctx.arc(o.x,o.y,o.r,0,Math.PI*2); ctx.fill(); });
+    raf=requestAnimationFrame(loop);
+  }
+  c.addEventListener('pointerdown', e=>{
+    if(!running) return;
+    const r=c.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top;
+    for(let i=objs.length-1;i>=0;i--){
+      const o=objs[i], d=Math.hypot(o.x-x,o.y-y);
+      if(d<=o.r){ objs.splice(i,1); score++; scoreEl.textContent=score; break; }
+    }
+  });
+  start.addEventListener('click', ()=>{
+    if(running) return; running=true; t=20; score=0; scoreEl.textContent=score; tEl.textContent=t; objs=[]; last=0;
+    clearInterval(timer);
+    timer=setInterval(()=>{ t--; tEl.textContent=t; if(t<=0){ clearInterval(timer); running=false; cancelAnimationFrame(raf); } },1000);
+    raf=requestAnimationFrame(loop);
+  });
+  window._ex81={start,c};
+})();
+
+/* 82) Word Builder (DnD) */
+(function(){
+  const words=['canvas','object','module','script','layout','cursor','driver','binary','thread','vector'];
+  const tilesEl=$('#ex82-tiles'), slotsEl=$('#ex82-slots'), res=$('#ex82-res'), newBtn=$('#ex82-new'), lenEl=$('#ex82-len');
+  let target='', letters=[];
+  function build(){
+    tilesEl.innerHTML=''; slotsEl.innerHTML=''; res.textContent='—';
+    target = words[rand(words.length)];
+    lenEl.textContent=String(target.length);
+    letters = target.split('');
+    const shuffled = letters.slice().sort(()=>Math.random()-0.5);
+    // tiles
+    shuffled.forEach((ch,i)=>{
+      const d=document.createElement('div'); d.className='tile'; d.textContent=ch; d.draggable=true; d.id='tile'+i;
+      d.addEventListener('dragstart',e=>{ e.dataTransfer.setData('text/plain', d.id); });
+      tilesEl.appendChild(d);
+    });
+    // slots
+    for(let i=0;i<letters.length;i++){
+      const s=document.createElement('div'); s.className='slot'; s.dataset.i=i;
+      s.addEventListener('dragover',e=>e.preventDefault());
+      s.addEventListener('drop',e=>{
+        e.preventDefault();
+        const id=e.dataTransfer.getData('text/plain'); const node=document.getElementById(id);
+        if(!node) return; if(s.firstChild) tilesEl.appendChild(s.firstChild);
+        s.appendChild(node);
+        check();
+      });
+      slotsEl.appendChild(s);
+    }
+  }
+  function check(){
+    const got=[...slotsEl.children].map(s=>s.firstChild?.textContent||'').join('');
+    if(got.length===target.length){
+      res.textContent = (got===target)?'✅ Correct!':'❌ Try again';
+    } else res.textContent='—';
+  }
+  newBtn.addEventListener('click', build); build();
+  window._ex82={newBtn};
+})();
+
+/* 83) Platform Jumper */
+(function(){
+  const c=$('#ex83-c'), ctx=c.getContext('2d'), start=$('#ex83-start'), scoreEl=$('#ex83-score');
+  let p, v, onGround=false, plats=[], score=0, raf=0, left=false, right=false, running=false;
+  function reset(){
+    p={x:40,y:20,w:14,h:18}; v={x:0,y:0}; score=0; scoreEl.textContent=score;
+    plats=[{x:0,y:170,w:300,h:20},{x:40,y:120,w:70,h:8},{x:140,y:95,w:70,h:8},{x:210,y:60,w:70,h:8}];
+  }
+  function aabb(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;}
+  function loop(){
+    if(!running) return;
+    v.y+=0.5; // gravity
+    v.x = (right?1:0)-(left?1:0); v.x*=2;
+    p.x+=v.x; p.y+=v.y;
+    // bounds
+    p.x=clamp(p.x,0,c.width-p.w);
+    onGround=false;
+    for(const s of plats){
+      // collide from top
+      if(aabb(p,s) && p.y+v.y>=s.y-p.h && v.y>0){ p.y=s.y-p.h; v.y=0; onGround=true; }
+    }
+    if(onGround) scoreEl.textContent=++score;
+    // death / reset if fall
+    if(p.y>c.height) reset();
+    // draw
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.fillStyle='#334155'; plats.forEach(s=>ctx.fillRect(s.x,s.y,s.w,s.h));
+    ctx.fillStyle='#60a5fa'; ctx.fillRect(p.x,p.y,p.w,p.h);
+    raf=requestAnimationFrame(loop);
+  }
+  window.addEventListener('keydown', e=>{ if(e.key==='ArrowLeft') left=true; if(e.key==='ArrowRight') right=true; if(e.key===' ' && onGround) v.y=-7; });
+  window.addEventListener('keyup', e=>{ if(e.key==='ArrowLeft') left=false; if(e.key==='ArrowRight') right=false; });
+  start.addEventListener('click', ()=>{ running=true; reset(); cancelAnimationFrame(raf); raf=requestAnimationFrame(loop); });
+  reset();
+  window._ex83={start,c};
+})();
+
+/* 84) Color Mixer */
+(function(){
+  const rEl=$('#ex84-r'), gEl=$('#ex84-g'), bEl=$('#ex84-b'), chip=$('#ex84-chip'), targetEl=$('#ex84-target'), nowEl=$('#ex84-now'), msg=$('#ex84-msg'), newBtn=$('#ex84-new');
+  let tr=0,tg=0,tb=0;
+  function setTarget(){ tr=30+rand(200); tg=30+rand(200); tb=30+rand(200); targetEl.textContent=`rgb(${tr}, ${tg}, ${tb})`; chip.style.background=`rgb(${tr},${tg},${tb})`; update(); }
+  function update(){
+    const r=+rEl.value, g=+gEl.value, b=+bEl.value; nowEl.textContent=`rgb(${r},${g},${b})`;
+    const d=Math.abs(r-tr)+Math.abs(g-tg)+Math.abs(b-tb);
+    msg.textContent = (Math.abs(r-tr)<=12 && Math.abs(g-tg)<=12 && Math.abs(b-tb)<=12) ? '✅ Close enough!' : `Δ sum = ${d}`;
+    document.body.style.setProperty('--accent', `rgb(${r},${g},${b})`);
+  }
+  [rEl,gEl,bEl].forEach(el=>el.addEventListener('input',update));
+  newBtn.addEventListener('click', setTarget);
+  setTarget();
+  window._ex84={newBtn};
+})();
+
+/* 85) TicTacToe with Minimax */
+(function(){
+  const grid=$('#ex85-grid'), status=$('#ex85-status'), newBtn=$('#ex85-new');
+  let b = Array(9).fill('');
+  function render(){
+    grid.innerHTML='';
+    b.forEach((v,i)=>{
+      const d=document.createElement('div'); d.className='cell'; d.style.height='60px'; d.style.fontSize='1.2rem'; d.style.fontWeight='800'; d.style.userSelect='none'; d.textContent=v||'';
+      d.addEventListener('click',()=>move(i));
+      grid.appendChild(d);
+    });
+  }
+  const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  function winner(s){
+    for(const w of wins){ const [a,c,d]=w; if(s[a] && s[a]===s[c] && s[a]===s[d]) return s[a]; }
+    return s.includes('')? null : 'draw';
+  }
+  function aiMove(){
+    let best=-1e9, bestI=-1;
+    for(let i=0;i<9;i++) if(!b[i]){ b[i]='O'; const val=minimax(b,false); b[i]=''; if(val>best){ best=val; bestI=i; } }
+    if(bestI>=0){ b[bestI]='O'; }
+  }
+  function minimax(s, isMax){
+    const w=winner(s); if(w==='O') return 1; if(w==='X') return -1; if(w==='draw') return 0;
+    if(isMax){ let best=-1e9; for(let i=0;i<9;i++) if(!s[i]){ s[i]='O'; best=Math.max(best, minimax(s,false)); s[i]=''; } return best; }
+    else { let best=1e9; for(let i=0;i<9;i++) if(!s[i]){ s[i]='X'; best=Math.min(best, minimax(s,true)); s[i]=''; } return best; }
+  }
+  function move(i){
+    if(b[i]||winner(b)) return; b[i]='X';
+    if(!winner(b)) aiMove();
+    const w=winner(b);
+    status.textContent = w? (w==='draw'?'Draw':'Win: '+w) : 'Your turn';
+    render();
+  }
+  newBtn.addEventListener('click', ()=>{ b=Array(9).fill(''); status.textContent='Your turn'; render(); });
+  render();
+  window._ex85={newBtn,grid};
+})();
+
+/* 86) Falling Numbers */
+(function(){
+  const c=$('#ex86-c'), ctx=c.getContext('2d'), start=$('#ex86-start'), tEl=$('#ex86-t'), scoreEl=$('#ex86-score');
+  let t=20, score=0, raf=0, last=0, objs=[], running=false, timer=0, typed='';
+  function spawn(){ const x=10+rand(c.width-20), v=40+rand(60), n=String(10+rand(90)); objs.push({x,y:-10,v,n}); }
+  function loop(ts){
+    if(!running) return;
+    if(!last) last=ts; const dt=(ts-last)/1000; last=ts;
+    ctx.clearRect(0,0,c.width,c.height);
+    if(Math.random()<0.03) spawn();
+    ctx.fillStyle='#e5e7eb'; ctx.font='16px system-ui';
+    objs.forEach(o=>{ o.y+=o.v*dt; ctx.fillText(o.n,o.x,o.y); });
+    objs = objs.filter(o=>o.y<c.height+10);
+    raf=requestAnimationFrame(loop);
+  }
+  function handleKey(e){
+    if(!running) return;
+    if(e.key==='Backspace'){ typed=typed.slice(0,-1); return; }
+    if(/\d/.test(e.key)){ typed+=e.key; for(let i=0;i<objs.length;i++){ if(objs[i].n===typed){ objs.splice(i,1); score++; scoreEl.textContent=score; typed=''; break; } } }
+  }
+  start.addEventListener('click', ()=>{
+    if(running) return; running=true; t=20; score=0; scoreEl.textContent=score; tEl.textContent=t; objs=[]; last=0; typed='';
+    clearInterval(timer);
+    timer=setInterval(()=>{ t--; tEl.textContent=t; if(t<=0){ clearInterval(timer); running=false; cancelAnimationFrame(raf); } },1000);
+    raf=requestAnimationFrame(loop);
+  });
+  let y=0; // hoist for spawn
+  window.addEventListener('keydown', handleKey);
+  window._ex86={start,c};
+})();
+
+/* 87) Light Reflection (one mirror) */
+(function(){
+  const c=$('#ex87-c'), ctx=c.getContext('2d'), angEl=$('#ex87-ang'), msg=$('#ex87-msg'), newBtn=$('#ex87-new');
+  let angle=0, goal={x:240,y:40};
+  function randGoal(){ goal={x:200+rand(80), y:20+rand(140)}; draw(); }
+  function reflect(inc, normal){ const dot=inc.x*normal.x+inc.y*normal.y; return {x:inc.x-2*dot*normal.x, y:inc.y-2*dot*normal.y}; }
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    // mirror at center
+    const cx=150, cy=95; const len=60;
+    const nx=Math.sin((angle*Math.PI)/180), ny=-Math.cos((angle*Math.PI)/180); // normal (perp to mirror)
+    const dx=Math.cos((angle*Math.PI)/180), dy=Math.sin((angle*Math.PI)/180);
+    ctx.strokeStyle='#9ca3af'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(cx-len*dx, cy-len*dy); ctx.lineTo(cx+len*dx, cy+len*dy); ctx.stroke();
+    // beam in from left
+    const src={x:20,y:95}; ctx.strokeStyle='#60a5fa'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(src.x,src.y); ctx.lineTo(cx,cy); ctx.stroke();
+    // reflect
+    const incoming={x:cx-src.x, y:cy-src.y}; const mag=Math.hypot(incoming.x,incoming.y); const inc={x:incoming.x/mag, y:incoming.y/mag};
+    const ref=reflect(inc,{x:nx,y:ny});
+    // draw reflected ray
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+ref.x*220, cy+ref.y*220); ctx.stroke();
+    // goal
+    ctx.fillStyle='#f59e0b'; ctx.beginPath(); ctx.arc(goal.x,goal.y,6,0,Math.PI*2); ctx.fill();
+    // hit test: distance from line segment (cx,cy)->(cx+ref*L)
+    const L=220; const px=goal.x-cx, py=goal.y-cy; const t=(px*ref.x+py*ref.y)/L; const closest={x:ref.x*t, y:ref.y*t};
+    const d=Math.hypot(px-closest.x, py-closest.y);
+    msg.textContent = d<8 && t>0 && t<1 ? '✅ Hit!' : 'Adjust angle…';
+  }
+  angEl.addEventListener('input', ()=>{ angle=+angEl.value; draw(); });
+  newBtn.addEventListener('click', randGoal);
+  angle=0; randGoal();
+  window._ex87={newBtn,angEl};
+})();
+
+/* 88) Path Painter */
+(function(){
+  const c=$('#ex88-c'), ctx=c.getContext('2d'), newBtn=$('#ex88-new'), countEl=$('#ex88-count'), totalEl=$('#ex88-total');
+  const CW=12, CH=8, SZ=22; let grid, px=0, py=0, painted=0;
+  function build(){
+    grid=Array.from({length:CH},()=>Array(CW).fill(0)); px=rand(CW); py=rand(CH); painted=0;
+    totalEl.textContent=CW*CH; countEl.textContent=painted; draw();
+  }
+  function draw(){
+    c.width=CW*SZ; c.height=CH*SZ; ctx.clearRect(0,0,c.width,c.height);
+    for(let y=0;y<CH;y++) for(let x=0;x<CW;x++){
+      ctx.fillStyle = grid[y][x] ? '#22c55e' : '#0b1220';
+      ctx.fillRect(x*SZ+1, y*SZ+1, SZ-2, SZ-2);
+    }
+    ctx.fillStyle='#60a5fa'; ctx.fillRect(px*SZ+4, py*SZ+4, SZ-8, SZ-8);
+  }
+  function move(dx,dy){ px=clamp(px+dx,0,CW-1); py=clamp(py+dy,0,CH-1); if(!grid[py][px]){ grid[py][px]=1; painted++; countEl.textContent=painted; } draw(); }
+  window.addEventListener('keydown', e=>{ if(e.key==='ArrowUp')move(0,-1); if(e.key==='ArrowDown')move(0,1); if(e.key==='ArrowLeft')move(-1,0); if(e.key==='ArrowRight')move(1,0); });
+  newBtn.addEventListener('click', build);
+  build();
+  window._ex88={newBtn,c};
+})();
+
+/* 89) Audio Synth Keys */
+(function(){
+  const vol=$('#ex89-vol'); let ctx=null, gain=null;
+  const keys='ASDFGHJKL'; const base=261.63; // C4
+  function getCtx(){ if(!ctx){ ctx=new (window.AudioContext||window.webkitAudioContext)(); gain=ctx.createGain(); gain.gain.value=+vol.value; gain.connect(ctx.destination); } return ctx; }
+  function play(freq){ const c=getCtx(); const osc=c.createOscillator(); const g=c.createGain(); osc.type='sine'; osc.frequency.value=freq; osc.connect(g); g.connect(gain); g.gain.setValueAtTime(0.001,c.currentTime); g.gain.exponentialRampToValueAtTime(1,c.currentTime+0.01); g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+0.35); osc.start(); osc.stop(c.currentTime+0.4); }
+  window.addEventListener('keydown', e=>{ const i=keys.indexOf(e.key.toUpperCase()); if(i>=0) play(base*Math.pow(2,i/12)); });
+  vol.addEventListener('input', ()=>{ if(gain) gain.gain.value=+vol.value; });
+  window._ex89={vol};
+})();
+
+/* 90) Chart Race */
+(function(){
+  const c=$('#ex90-c'), ctx=c.getContext('2d'), start=$('#ex90-start'), stepBtn=$('#ex90-step');
+  let vals=[20,35,10,50,15], target=[...vals], anim=0, raf=0;
+  function randomize(){ target=vals.map(v=>clamp(v+(Math.random()*60-30),0,100)); anim=0; }
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height); const H=c.height-20; const W=c.width-20; const bw=W/vals.length-8;
+    anim = Math.min(anim+0.02, 1);
+    ctx.font='12px system-ui'; ctx.fillStyle='#e5e7eb';
+    vals = vals.map((v,i)=> v + (target[i]-v)*anim );
+    vals.forEach((v,i)=>{ const h=v/100*H; const x=10+i*(bw+8), y=c.height-10-h; ctx.fillStyle='#60a5fa'; ctx.fillRect(x,y,bw,h); ctx.fillStyle='#9ca3af'; ctx.fillText(String(v|0), x+4, y-4); });
+    if(anim<1) raf=requestAnimationFrame(draw);
+  }
+  start.addEventListener('click', ()=>{ randomize(); cancelAnimationFrame(raf); raf=requestAnimationFrame(draw); });
+  stepBtn.addEventListener('click', ()=>{ randomize(); cancelAnimationFrame(raf); raf=requestAnimationFrame(draw); });
+  draw();
+  window._ex90={start,stepBtn,c};
+})();
+
+/* ------------------------
+   Minimal Test Harness
+-------------------------*/
+(function(){
+  const btn=$('#run-tests'), sum=$('#test-summary'), err=$('#test-errors');
+  let logs=[];
+  const ok = m=>logs.push({ok:true,msg:m});
+  const bad = m=>logs.push({ok:false,msg:m});
+
+  async function t81(){ const {start}=window._ex81; start.click(); ok('ex81 start'); }
+  async function t82(){ const {newBtn}=window._ex82; newBtn.click(); ok('ex82 build'); }
+  async function t83(){ const {start}=window._ex83; start.click(); ok('ex83 start'); }
+  async function t84(){ const {newBtn}=window._ex84; newBtn.click(); ok('ex84 new'); }
+  async function t85(){ const {newBtn}=window._ex85; newBtn.click(); ok('ex85 reset'); }
+  async function t86(){ const {start}=window._ex86; start.click(); ok('ex86 start'); }
+  async function t87(){ const {newBtn}=window._ex87; newBtn.click(); ok('ex87 new goal'); }
+  async function t88(){ const {newBtn}=window._ex88; newBtn.click(); ok('ex88 new'); }
+  async function t89(){ const {vol}=window._ex89; vol.value='0.2'; vol.dispatchEvent(new Event('input',{bubbles:true})); ok('ex89 volume set'); }
+  async function t90(){ const {start}=window._ex90; start.click(); ok('ex90 animating'); }
+
+  btn.addEventListener('click', async ()=>{
+    logs=[];
+    const tests=[t81,t82,t83,t84,t85,t86,t87,t88,t89,t90];
+    for(const t of tests){
+      try{ await t(); }catch(e){ bad(t.name+': '+e.message); }
+    }
+    const pass = logs.filter(l=>l.ok).length, fail = logs.length-pass;
+    sum.textContent = `${pass}/${logs.length} passed`;
+    err.textContent = `${fail} failed`;
+    sum.classList.remove('hidden'); err.classList.remove('hidden');
+    sum.className='pill '+(fail?'badpill':'ok');
+    err.className='pill '+(fail?'badpill':'ok');
+    if(!fail) err.classList.add('hidden');
+  });
+})();
+</script>
+</body>
+</html>

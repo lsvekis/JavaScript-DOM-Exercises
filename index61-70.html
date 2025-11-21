@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>JavaScript DOM & Canvas Games — Exercises 61–70</title>
+<style>
+  :root{--bg:#0f172a;--panel:#111827;--card:#1f2937;--accent:#60a5fa;--ok:#10b981;--bad:#ef4444;--muted:#9ca3af}
+  body{margin:0;background:var(--bg);color:#e5e7eb;font:15px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  header{padding:1.1rem 1.2rem .4rem}
+  h1{margin:0;font-size:1.35rem}
+  .wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;padding:12px}
+  .card{background:var(--card);border:1px solid #111;border-radius:14px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+  .card header{background:var(--panel);padding:.8rem 1rem;border-bottom:1px solid #000}
+  .card h2{margin:0;font-size:1rem}
+  .card .body{padding:.8rem 1rem}
+  .meta{font-size:.9rem;color:var(--muted);margin:.3rem 0 .6rem}
+  button{background:var(--accent);border:0;color:#06121f;padding:.5rem .8rem;border-radius:10px;cursor:pointer;font-weight:600}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .small{font-size:.85rem;color:#9ca3af}
+  .note{font-size:.9rem;color:#cbd5e1}
+  .arena{position:relative;width:300px;height:190px;border:1px solid #000;border-radius:10px;background:#0b1220;overflow:hidden}
+  .testbar{position:sticky;bottom:0;background:#030712cc;border-top:1px solid #000;padding:.6rem 1rem;display:flex;gap:8px;backdrop-filter: blur(6px)}
+  .pill{border-radius:999px;padding:.1rem .5rem;border:1px solid #000}
+  .ok{background:#064e3b;color:#d1fae5}
+  .bad{background:#7f1d1d;color:#fee2e2}
+  .hidden{display:none}
+  canvas{background:#0b1220;border-radius:10px;border:1px solid #000;display:block}
+</style>
+</head>
+<body>
+<header>
+  <h1>JavaScript DOM & Canvas Games — Exercises 61–70</h1>
+  <p class="small">Vanilla JS, no build tools. Click “Run All Tests” at the bottom for quick validations.</p>
+</header>
+
+<div class="wrap">
+
+  <section class="card" id="ex61">
+    <header><h2>61) Particle Explosion</h2></header>
+    <div class="body">
+      <div class="meta">Click the canvas to trigger particle bursts.</div>
+      <canvas id="ex61-c" width="300" height="190"></canvas>
+      <p class="note">Outcomes: Canvas 2D, animation loop, object pooling, fade-out.</p>
+    </div>
+  </section>
+
+  <section class="card" id="ex62">
+    <header><h2>62) Maze Generator + Solver</h2></header>
+    <div class="body">
+      <div class="meta">Generate a random maze and visualize solving.</div>
+      <div class="row"><button id="ex62-gen">Generate</button><button id="ex62-solve">Solve</button></div>
+      <canvas id="ex62-c" width="300" height="190"></canvas>
+      <p class="note">Outcomes: DFS backtracker, grid rendering, step-by-step solving.</p>
+    </div>
+  </section>
+
+  <section class="card" id="ex63">
+    <header><h2>63) AI Guess My Number</h2></header>
+    <div class="body">
+      <div class="meta">Think of a number (1–1000). The AI will binary-search it.</div>
+      <div class="row">
+        <button id="ex63-new">New</button>
+        Guess: <b id="ex63-guess">—</b>
+        <button id="ex63-low">Lower</button>
+        <button id="ex63-high">Higher</button>
+        <button id="ex63-ok">Correct</button>
+      </div>
+      <p class="note">Outcomes: binary search, state updates, UI logic.</p>
+    </div>
+  </section>
+
+  <section class="card" id="ex64">
+    <header><h2>64) Gravity Balls Playground</h2></header>
+    <div class="body">
+      <div class="meta">Balls fall with gravity and bounce.</div>
+      <div class="row"><button id="ex64-start">Start</button><button id="ex64-reset">Reset</button></div>
+      <canvas id="ex64-c" width="300" height="190"></canvas>
+      <p class="note">Outcomes: physics integration, bouncing, damping.</p>
+    </div>
+  </section>
+
+  <section class="card" id="ex65">
+    <header><h2>65) Reaction Chain</h2></header>
+    <div class="body">
+      <div class="meta">Trigger one node to ignite nearby ones in a chain reaction.</div>
+      <div class="row"><button id="ex65-new">New</button> Score: <b id="ex65-score">0</b></div>
+      <canvas id="ex65-c" width="300" height="190"></canvas>
+      <p class="note">Outcomes: distance checks, propagation timing, scoring.</p>
+    </div>
+  </section>
+
+  <section class="card" id="ex66">
+    <header><h2>66) Dynamic Bar Graph Animator</h2></header>
+    <div class="body">
+      <div class="meta">Live data animating across canvas bars.</div>
+      <div class="row"><button id="ex66-play">Play</button><button id="ex66-stop">Stop</button></div>
+      <canvas id="ex66-c" width="300" height="190"></canvas>
+      <p class="note">Outcomes: arrays, interpolation, rendering optimization.</p>
+    </div>
+  </section>
+
+  <section class="card" id="ex67">
+    <header><h2>67) Pong Two-Player</h2></header>
+    <div class="body">
+      <div class="meta">Play with W/S (left) and ↑/↓ (right).</div>
+      <div class="row"><button id="ex67-start">Start</button> Score: <b id="ex67-score">0–0</b></div>
+      <canvas id="ex67-c" width="300" height="190"></canvas>
+      <p class="note">Outcomes: keyboard input, collisions, game loop.</p>
+    </div>
+  </section>
+
+  <section class="card" id="ex68">
+    <header><h2>68) AI Color Predictor</h2></header>
+    <div class="body">
+      <div class="meta">Pick a color; the “AI” predicts the next choice using weighted history.</div>
+      <div class="row"><button data-c="red" class="ex68-btn">Red</button><button data-c="green" class="ex68-btn">Green</button><button data-c="blue" class="ex68-btn">Blue</button> | AI: <b id="ex68-ai">—</b> | Hits: <b id="ex68-hits">0</b></div>
+      <div class="arena" id="ex68-a"></div>
+      <p class="note">Outcomes: probability weighting, feedback loop, simple ML-like behavior.</p>
+    </div>
+  </section>
+
+  <section class="card" id="ex69">
+    <header><h2>69) Bubble Sort Visualizer</h2></header>
+    <div class="body">
+      <div class="meta">Watch a small array bubble sort step-by-step.</div>
+      <div class="row"><button id="ex69-new">New</button><button id="ex69-sort">Sort</button></div>
+      <canvas id="ex69-c" width="300" height="190"></canvas>
+      <p class="note">Outcomes: algorithms, iteration pacing, visualization.</p>
+    </div>
+  </section>
+
+  <section class="card" id="ex70">
+    <header><h2>70) Sound Visualizer Bars</h2></header>
+    <div class="body">
+      <div class="meta">Use your microphone to visualize live audio.</div>
+      <div class="row"><button id="ex70-start">Start</button><button id="ex70-stop">Stop</button></div>
+      <canvas id="ex70-c" width="300" height="190"></canvas>
+      <p class="note">Outcomes: WebAudio getUserMedia, analyser, bar rendering.</p>
+    </div>
+  </section>
+
+</div>
+
+<div class="testbar">
+  <button id="run-tests">Run All Tests</button>
+  <span id="test-summary" class="pill ok hidden"></span>
+  <span id="test-errors" class="pill bad hidden"></span>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const $$=s=>Array.from(document.querySelectorAll(s));
+const rand=n=>Math.floor(Math.random()*n);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+// 61) Particle Explosion
+(function(){
+  const c=$('#ex61-c'), ctx=c.getContext('2d');
+  let parts=[], raf=0, last=0;
+  function spawn(x,y){
+    for(let i=0;i<80;i++){
+      const ang=Math.random()*Math.PI*2;
+      const sp=40+Math.random()*160;
+      parts.push({x,y,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp,life:1,decay:0.012+Math.random()*0.02});
+    }
+  }
+  function loop(ts){
+    if(!last) last=ts; const dt=(ts-last)/1000; last=ts;
+    ctx.clearRect(0,0,c.width,c.height);
+    for(const p of parts){
+      p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=60*dt;
+      p.life-=p.decay;
+      ctx.globalAlpha=Math.max(0,p.life);
+      ctx.fillStyle='#60a5fa';
+      ctx.fillRect(p.x,p.y,2,2);
+    }
+    ctx.globalAlpha=1;
+    parts=parts.filter(p=>p.life>0);
+    raf=requestAnimationFrame(loop);
+  }
+  c.addEventListener('click',e=>{
+    const r=c.getBoundingClientRect();
+    spawn(e.clientX-r.left,e.clientY-r.top);
+    if(!raf) raf=requestAnimationFrame(loop);
+  });
+  raf=requestAnimationFrame(loop);
+  window._ex61={c};
+})();
+
+// 62) Maze Generator + Solver
+(function(){
+  const c=$('#ex62-c'), ctx=c.getContext('2d'), gen=$('#ex62-gen'), solve=$('#ex62-solve');
+  const cols=15, rows=9, cw=c.width/cols, ch=c.height/rows;
+  let grid, stack, path=[];
+
+  function buildGrid(){
+    grid=[];
+    for(let y=0;y<rows;y++){
+      const row=[];
+      for(let x=0;x<cols;x++){
+        row.push({x,y,visited:false,w:[1,1,1,1]});
+      }
+      grid.push(row);
+    }
+  }
+  function drawGrid(highlight=null){
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.strokeStyle='#9ca3af'; ctx.lineWidth=1;
+    for(const row of grid){
+      for(const cell of row){
+        const x=cell.x*cw, y=cell.y*ch;
+        ctx.beginPath();
+        if(cell.w[0]){ ctx.moveTo(x,y); ctx.lineTo(x+cw,y); }
+        if(cell.w[1]){ ctx.moveTo(x+cw,y); ctx.lineTo(x+cw,y+ch); }
+        if(cell.w[2]){ ctx.moveTo(x+cw,y+ch); ctx.lineTo(x,y+ch); }
+        if(cell.w[3]){ ctx.moveTo(x,y+ch); ctx.lineTo(x,y); }
+        ctx.stroke();
+      }
+    }
+    ctx.fillStyle='#22c55e'; ctx.fillRect(2,2,cw-4,ch-4);
+    ctx.fillStyle='#f59e0b'; ctx.fillRect((cols-1)*cw+2,(rows-1)*ch+2,cw-4,ch-4);
+    if(path.length){
+      ctx.strokeStyle='#60a5fa'; ctx.lineWidth=3; ctx.beginPath();
+      for(let i=0;i<path.length;i++){
+        const p=path[i]; const cx=p.x*cw+cw/2, cy=p.y*ch+ch/2;
+        if(i===0) ctx.moveTo(cx,cy); else ctx.lineTo(cx,cy);
+      }
+      ctx.stroke(); ctx.lineWidth=1;
+    }
+    if(highlight){
+      ctx.fillStyle='rgba(239,68,68,.25)';
+      ctx.fillRect(highlight.x*cw+2,highlight.y*ch+2,cw-4,ch-4);
+    }
+  }
+  function neighbors(cell){
+    const res=[]; const {x,y}=cell;
+    if(y>0) res.push({dir:0, nx:x, ny:y-1});
+    if(x<cols-1) res.push({dir:1, nx:x+1, ny:y});
+    if(y<rows-1) res.push({dir:2, nx:x, ny:y+1});
+    if(x>0) res.push({dir:3, nx:x-1, ny:y});
+    return res;
+  }
+  function carve(a,b,dir){ a.w[dir]=0; b.w[(dir+2)%4]=0; }
+  async function generate(){
+    buildGrid(); path=[];
+    let current=grid[0][0]; current.visited=true; const st=[current];
+    while(st.length){
+      const opts = neighbors(current).filter(n=>!grid[n.ny][n.nx].visited);
+      if(opts.length){
+        const n = opts[Math.floor(Math.random()*opts.length)];
+        const next = grid[n.ny][n.nx];
+        carve(current,next,n.dir);
+        next.visited=true;
+        st.push(current);
+        current=next;
+      }else{
+        current=st.pop();
+      }
+      drawGrid(current);
+      await new Promise(r=>setTimeout(r,8));
+    }
+    drawGrid();
+  }
+  async function solveMaze(){
+    path=[]; const target={x:cols-1,y:rows-1}; const seen=new Set();
+    async function dfs(x,y){
+      const key=x+','+y; if(seen.has(key)) return false; seen.add(key);
+      path.push({x,y}); drawGrid(); await new Promise(r=>setTimeout(r,20));
+      if(x===target.x && y===target.y) return true;
+      const cell=grid[y][x];
+      const moves=[[0,-1],[1,0],[0,1],[-1,0]];
+      for(let i=0;i<4;i++){
+        if(cell.w[i]===0){
+          const nx=x+moves[i][0], ny=y+moves[i][1];
+          if(nx>=0&&nx<cols&&ny>=0&&ny<rows){ if(await dfs(nx,ny)) return true; }
+        }
+      }
+      path.pop(); drawGrid(); await new Promise(r=>setTimeout(r,10));
+      return false;
+    }
+    await dfs(0,0); drawGrid();
+  }
+  gen.addEventListener('click', generate);
+  solve.addEventListener('click', solveMaze);
+  generate();
+  window._ex62={gen,solve,c};
+})();
+
+// 63) AI Guess My Number
+(function(){
+  const newBtn=$('#ex63-new'), gEl=$('#ex63-guess'), low=$('#ex63-low'), high=$('#ex63-high'), ok=$('#ex63-ok');
+  let lo=1, hi=1000, mid=0, active=false;
+  function step(){ mid=Math.floor((lo+hi)/2); gEl.textContent=mid; }
+  newBtn.addEventListener('click', ()=>{ lo=1; hi=1000; active=true; step(); });
+  low.addEventListener('click', ()=>{ if(!active) return; hi=mid-1; step(); });
+  high.addEventListener('click', ()=>{ if(!active) return; lo=mid+1; step(); });
+  ok.addEventListener('click', ()=>{ if(!active) return; gEl.textContent='🎯 '+mid; active=false; });
+  window._ex63={newBtn,low,high,ok};
+})();
+
+// 64) Gravity Balls
+(function(){
+  const c=$('#ex64-c'), ctx=c.getContext('2d'), start=$('#ex64-start'), reset=$('#ex64-reset');
+  let balls=[], last=0, running=false;
+  function make(){ balls=[]; for(let i=0;i<12;i++){ balls.push({x:20+Math.random()*(c.width-40), y:10+Math.random()*30, vx:-40+Math.random()*80, vy:0, r:6+Math.random()*8, color:'#60a5fa'}); } }
+  function loop(ts){
+    if(!running) return;
+    if(!last) last=ts; const dt=(ts-last)/1000; last=ts;
+    ctx.clearRect(0,0,c.width,c.height);
+    for(const b of balls){
+      b.vy += 400*dt;
+      b.x += b.vx*dt; b.y += b.vy*dt;
+      if(b.x<b.r){ b.x=b.r; b.vx*=-0.9; }
+      if(b.x>c.width-b.r){ b.x=c.width-b.r; b.vx*=-0.9; }
+      if(b.y>c.height-b.r){ b.y=c.height-b.r; b.vy*=-0.75; }
+      ctx.beginPath(); ctx.fillStyle=b.color; ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fill(); ctx.strokeStyle='#000'; ctx.stroke();
+    }
+    requestAnimationFrame(loop);
+  }
+  start.addEventListener('click', ()=>{ if(running) return; running=true; last=0; requestAnimationFrame(loop); });
+  reset.addEventListener('click', ()=>{ make(); ctx.clearRect(0,0,c.width,c.height); for(const b of balls){ ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fillStyle=b.color; ctx.fill(); ctx.stroke(); } });
+  make();
+  window._ex64={start,reset,c};
+})();
+
+// 65) Reaction Chain
+(function(){
+  const c=$('#ex65-c'), ctx=c.getContext('2d'), newBtn=$('#ex65-new'), scoreEl=$('#ex65-score');
+  let nodes=[], blasts=[], score=0;
+  function build(){
+    nodes=[]; blasts=[]; score=0; scoreEl.textContent=score;
+    for(let i=0;i<28;i++){ nodes.push({x:10+Math.random()*(c.width-20), y:10+Math.random()*(c.height-20), hit:false}); }
+    draw();
+  }
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.strokeStyle='#f59e0b';
+    for(const b of blasts){ ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.stroke(); }
+    for(const n of nodes){
+      ctx.beginPath(); ctx.fillStyle=n.hit?'#10b981':'#ef4444'; ctx.arc(n.x,n.y,5,0,Math.PI*2); ctx.fill(); ctx.strokeStyle='#000'; ctx.stroke();
+    }
+  }
+  function loop(){
+    blasts.forEach(b=>{ b.r+=2; b.life-=1; });
+    for(const b of blasts){
+      for(const n of nodes){
+        if(!n.hit && Math.hypot(n.x-b.x,n.y-b.y)<=b.r){ n.hit=true; score++; scoreEl.textContent=score; blasts.push({x:n.x,y:n.y,r:2,life:25}); }
+      }
+    }
+    blasts=blasts.filter(b=>b.life>0);
+    draw();
+    requestAnimationFrame(loop);
+  }
+  c.addEventListener('click', e=>{
+    const r=c.getBoundingClientRect(); blasts.push({x:e.clientX-r.left,y:e.clientY-r.top,r:2,life:25});
+  });
+  newBtn.addEventListener('click', build);
+  build(); requestAnimationFrame(loop);
+  window._ex65={newBtn,c};
+})();
+
+// 66) Dynamic Bar Graph Animator
+(function(){
+  const c=$('#ex66-c'), ctx=c.getContext('2d'), play=$('#ex66-play'), stop=$('#ex66-stop');
+  let data=Array.from({length:16},()=>10+Math.random()*80), target=data.slice(), raf=0;
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    const w=c.width/data.length;
+    for(let i=0;i<data.length;i++){
+      const h=data[i]/100*c.height;
+      ctx.fillStyle='#60a5fa'; ctx.fillRect(i*w+2, c.height-h, w-4, h);
+      ctx.strokeStyle='#000'; ctx.strokeRect(i*w+2, c.height-h, w-4, h);
+    }
+  }
+  function step(){
+    for(let i=0;i<data.length;i++){ data[i]+= (target[i]-data[i])*0.08; }
+    draw(); raf=requestAnimationFrame(step);
+  }
+  play.addEventListener('click', ()=>{ target = Array.from({length:16},()=>10+Math.random()*90); if(!raf) raf=requestAnimationFrame(step); });
+  stop.addEventListener('click', ()=>{ cancelAnimationFrame(raf); raf=0; });
+  draw();
+  window._ex66={play,stop,c};
+})();
+
+// 67) Pong Two-Player
+(function(){
+  const c=$('#ex67-c'), ctx=c.getContext('2d'), start=$('#ex67-start'), scoreEl=$('#ex67-score');
+  let lp=80, rp=80, bvx=140, bvy=80, bx=150, by=95, running=false, last=0, l=0, r=0;
+  const PADDLE_H=40, PADDLE_W=6;
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.fillStyle='#e5e7eb';
+    ctx.fillRect(8,lp,PADDLE_W,PADDLE_H);
+    ctx.fillRect(c.width-8-PADDLE_W,rp,PADDLE_W,PADDLE_H);
+    ctx.beginPath(); ctx.arc(bx,by,4,0,Math.PI*2); ctx.fill();
+  }
+  function loop(ts){
+    if(!running) return;
+    if(!last) last=ts; const dt=(ts-last)/1000; last=ts;
+    bx+=bvx*dt; by+=bvy*dt;
+    if(by<4||by>c.height-4) bvy*=-1;
+    if(bx-4<=8+PADDLE_W && by>=lp && by<=lp+PADDLE_H){ bvx=Math.abs(bvx); }
+    if(bx+4>=c.width-8-PADDLE_W && by>=rp && by<=rp+PADDLE_H){ bvx=-Math.abs(bvx); }
+    if(bx<0){ r++; scoreEl.textContent=`${l}–${r}`; resetBall(1); }
+    if(bx>c.width){ l++; scoreEl.textContent=`${l}–${r}`; resetBall(-1); }
+    draw(); requestAnimationFrame(loop);
+  }
+  function resetBall(dir){ bx=c.width/2; by=c.height/2; bvx=dir*140; bvy=(Math.random()>.5?1:-1)*80; }
+  window.addEventListener('keydown', e=>{
+    if(e.key==='w') lp=clamp(lp-8,0,c.height-PADDLE_H);
+    if(e.key==='s') lp=clamp(lp+8,0,c.height-PADDLE_H);
+    if(e.key==='ArrowUp') rp=clamp(rp-8,0,c.height-PADDLE_H);
+    if(e.key==='ArrowDown') rp=clamp(rp+8,0,c.height-PADDLE_H);
+  });
+  start.addEventListener('click', ()=>{ if(running) return; running=true; l=0; r=0; scoreEl.textContent='0–0'; resetBall(Math.random()>.5?1:-1); last=0; requestAnimationFrame(loop); });
+  draw();
+  window._ex67={start,c};
+})();
+
+// 68) AI Color Predictor
+(function(){
+  const a=$('#ex68-a'), aiEl=$('#ex68-ai'), hitsEl=$('#ex68-hits');
+  const history={red:1,green:1,blue:1};
+  const colors=['red','green','blue']; let hits=0;
+  function predict(){
+    const total=history.red+history.green+history.blue;
+    const probs=colors.map(c=>({c,p:history[c]/total})).sort((x,y)=>y.p-x.p);
+    return probs[0].c;
+  }
+  function renderBG(c){ a.style.background = c==='red'?'#7f1d1d': c==='green'?'#064e3b':'#0b1220'; }
+  $$('.ex68-btn').forEach(btn=>btn.addEventListener('click',()=>{
+    const ai = predict(); aiEl.textContent=ai;
+    const user = btn.dataset.c; renderBG(user);
+    if(ai===user){ hits++; hitsEl.textContent=hits; }
+    history[user]++;
+  }));
+  renderBG('blue');
+  window._ex68={a};
+})();
+
+// 69) Bubble Sort Visualizer
+(function(){
+  const c=$('#ex69-c'), ctx=c.getContext('2d'), newBtn=$('#ex69-new'), sortBtn=$('#ex69-sort');
+  let arr=[], i=0, j=0, sorting=false;
+  function build(){ arr=Array.from({length:24},()=>5+Math.random()*95); i=0; j=0; sorting=false; draw(); }
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    const w=c.width/arr.length;
+    for(let k=0;k<arr.length;k++){
+      const h = arr[k]/100*c.height;
+      ctx.fillStyle = (k===j||k===j+1)?'#f59e0b':'#60a5fa';
+      ctx.fillRect(k*w+2,c.height-h,w-4,h);
+      ctx.strokeStyle='#000'; ctx.strokeRect(k*w+2,c.height-h,w-4,h);
+    }
+  }
+  async function sort(){
+    sorting=true;
+    for(i=0;i<arr.length;i++){
+      for(j=0;j<arr.length-i-1;j++){
+        if(arr[j]>arr[j+1]){ const t=arr[j]; arr[j]=arr[j+1]; arr[j+1]=t; }
+        draw(); await new Promise(r=>setTimeout(r,30));
+      }
+    }
+    sorting=false; draw();
+  }
+  newBtn.addEventListener('click', build);
+  sortBtn.addEventListener('click', ()=>{ if(!sorting) sort(); });
+  build();
+  window._ex69={newBtn,sortBtn,c};
+})();
+
+// 70) Sound Visualizer Bars
+(function(){
+  const c=$('#ex70-c'), ctx=c.getContext('2d'), start=$('#ex70-start'), stop=$('#ex70-stop');
+  let audioCtx, analyser, dataArray, src, raf=0;
+  async function begin(){
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ alert('getUserMedia not supported'); return; }
+    audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    src = audioCtx.createMediaStreamSource(stream);
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+    dataArray = new Uint8Array(analyser.frequencyBinCount);
+    src.connect(analyser);
+    loop();
+  }
+  function loop(){
+    analyser.getByteFrequencyData(dataArray);
+    ctx.clearRect(0,0,c.width,c.height);
+    const step = Math.floor(dataArray.length/32);
+    const w = c.width/32;
+    for(let i=0;i<32;i++){
+      const v=dataArray[i*step]/255;
+      const h=v*c.height;
+      ctx.fillStyle='#60a5fa'; ctx.fillRect(i*w+2,c.height-h,w-4,h);
+      ctx.strokeStyle='#000'; ctx.strokeRect(i*w+2,c.height-h,w-4,h);
+    }
+    raf=requestAnimationFrame(loop);
+  }
+  start.addEventListener('click', ()=>{ if(!raf) begin(); });
+  stop.addEventListener('click', ()=>{ cancelAnimationFrame(raf); raf=0; if(audioCtx){ audioCtx.close(); audioCtx=null; } });
+  window._ex70={start,stop,c};
+})();
+
+// Tests
+(function(){
+  const btn=$('#run-tests'), sum=$('#test-summary'), err=$('#test-errors');
+  let logs=[]; const ok=m=>logs.push({ok:true,msg:m}); const bad=m=>logs.push({ok:false,msg:m});
+  async function t61(){ const {c}=window._ex61; c.dispatchEvent(new MouseEvent('click',{bubbles:true,clientX:c.getBoundingClientRect().left+50,clientY:c.getBoundingClientRect().top+50})); ok('ex61 clickable'); }
+  async function t62(){ const {gen}=window._ex62; gen.click(); ok('ex62 gen'); }
+  async function t63(){ const {newBtn,low,high,ok:OK}=window._ex63; newBtn.click(); high.click(); low.click(); OK.click(); ok('ex63 controls'); }
+  async function t64(){ const {start,reset}=window._ex64; reset.click(); start.click(); ok('ex64 run'); }
+  async function t65(){ const {newBtn}=window._ex65; newBtn.click(); ok('ex65 new'); }
+  async function t66(){ const {play,stop}=window._ex66; play.click(); stop.click(); ok('ex66 controls'); }
+  async function t67(){ const {start}=window._ex67; start.click(); ok('ex67 start'); }
+  async function t68(){ const {a}=window._ex68; a.click(); ok('ex68 arena'); }
+  async function t69(){ const {newBtn,sortBtn}=window._ex69; newBtn.click(); sortBtn.click(); ok('ex69 sort'); }
+  async function t70(){ const {start,stop}=window._ex70; start.click(); stop.click(); ok('ex70 buttons'); }
+  btn.addEventListener('click', async ()=>{
+    logs=[]; const tests=[t61,t62,t63,t64,t65,t66,t67,t68,t69,t70];
+    for(const t of tests){ try{ await t(); }catch(e){ bad(t.name+': '+e.message); } }
+    const pass=logs.filter(l=>l.ok).length, fail=logs.length-pass;
+    sum.textContent = `${pass}/${logs.length} passed`; err.textContent = `${fail} failed`;
+    sum.classList.remove('hidden'); err.classList.remove('hidden');
+    sum.className='pill '+(fail?'bad':'ok'); err.className='pill '+(fail?'bad':'ok');
+    if(!fail) err.classList.add('hidden');
+  });
+})();
+</script>
+</body>
+</html>

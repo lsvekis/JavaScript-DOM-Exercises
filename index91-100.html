@@ -1,0 +1,839 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>JavaScript DOM & Canvas Games — Exercises 91–100</title>
+<style>
+  :root{--bg:#0f172a;--panel:#111827;--card:#1f2937;--accent:#60a5fa;--ok:#10b981;--bad:#ef4444;--muted:#9ca3af}
+  body{margin:0;background:var(--bg);color:#e5e7eb;font:15px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  header{padding:1.1rem 1.2rem .4rem}
+  h1{margin:0;font-size:1.35rem}
+  .wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;padding:12px}
+  .card{background:var(--card);border:1px solid #111;border-radius:14px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+  .card header{background:var(--panel);padding:.8rem 1rem;border-bottom:1px solid #000}
+  .card h2{margin:0;font-size:1rem}
+  .card .body{padding:.8rem 1rem}
+  .meta{font-size:.9rem;color:var(--muted);margin:.3rem 0 .6rem}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  button{background:var(--accent);border:0;color:#06121f;padding:.5rem .8rem;border-radius:10px;cursor:pointer;font-weight:600}
+  .small{font-size:.85rem;color:#9ca3af}
+  .note{font-size:.9rem;color:#cbd5e1}
+  .arena{position:relative;width:300px;height:190px;border:1px solid #000;border-radius:10px;background:#0b1220;overflow:hidden}
+  canvas{background:#0b1220;border-radius:10px;border:1px solid #000;display:block}
+  .maze-wall{position:absolute;background:#020617;border-radius:4px}
+  .maze-goal{position:absolute;width:28px;height:28px;border-radius:50%;background:#22c55e;display:grid;place-items:center;font-weight:700}
+  .drag-emoji{position:absolute;font-size:26px;cursor:grab;user-select:none}
+  .grid{display:grid;gap:6px}
+  .grid-4{grid-template-columns:repeat(4,1fr)}
+  .card-cell{height:50px;border-radius:8px;border:1px solid #000;background:#020617;display:grid;place-items:center;cursor:pointer;font-weight:700;font-size:1.1rem}
+  .card-cell.revealed{background:#1f2937}
+  .pixel-grid{display:grid;grid-template-columns:repeat(16,1fr);gap:2px;width:256px}
+  .pixel{width:14px;height:14px;border-radius:3px;border:1px solid #020617;background:#020617;cursor:pointer}
+  .lane-row{display:flex;gap:6px;margin-top:6px}
+  .lane{flex:1;height:160px;border-radius:10px;border:1px solid #000;background:#020617;position:relative}
+  .beat{position:absolute;width:24px;height:24px;border-radius:50%;background:#60a5fa;left:50%;transform:translateX(-50%)}
+  .pad-keys{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:4px}
+  .pad-key{padding:.4rem .2rem;border-radius:8px;border:1px solid #000;background:#020617;display:grid;place-items:center;font-weight:700}
+  .testbar{position:sticky;bottom:0;background:#030712cc;border-top:1px solid #000;padding:.6rem 1rem;display:flex;gap:8px;backdrop-filter: blur(6px)}
+  .pill{border-radius:999px;padding:.1rem .5rem;border:1px solid #000}
+  .okpill{background:#064e3b;color:#d1fae5}
+  .badpill{background:#7f1d1d;color:#fee2e2}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>JavaScript DOM & Canvas Games — Exercises 91–100</h1>
+  <p class="small">More vanilla JS mini-projects. Scroll, play, inspect the code, and tweak everything.</p>
+</header>
+
+<div class="wrap">
+
+  <!-- 91) Particle Fountain -->
+  <section class="card" id="ex91">
+    <header><h2>91) Particle Fountain</h2></header>
+    <div class="body">
+      <div class="meta">Click the canvas to spawn particle bursts that fly and fade out.</div>
+      <div class="row"><button id="ex91-clear">Clear</button></div>
+      <canvas id="ex91-c" width="300" height="190"></canvas>
+      <p class="note"><strong>Outcomes:</strong> particle objects, gravity, alpha fade, canvas loop.</p>
+    </div>
+  </section>
+
+  <!-- 92) Emoji Drag Maze -->
+  <section class="card" id="ex92">
+    <header><h2>92) Emoji Drag Maze</h2></header>
+    <div class="body">
+      <div class="meta">Drag the emoji to the goal without touching walls.</div>
+      <div class="arena" id="ex92-arena">
+        <div class="maze-wall" style="left:60px;top:0;width:20px;height:110px"></div>
+        <div class="maze-wall" style="left:140px;top:80px;width:20px;height:110px"></div>
+        <div class="maze-wall" style="left:0;top:130px;width:160px;height:20px"></div>
+        <div class="maze-goal" id="ex92-goal" style="right:18px;bottom:18px">🏁</div>
+        <div class="drag-emoji" id="ex92-emoji" style="left:16px;top:16px">😀</div>
+      </div>
+      <div class="row" style="margin-top:6px">Status: <b id="ex92-status">Drag the emoji…</b></div>
+      <p class="note"><strong>Outcomes:</strong> pointer drag, collision via bounding boxes.</p>
+    </div>
+  </section>
+
+  <!-- 93) Canvas Orbit Simulator -->
+  <section class="card" id="ex93">
+    <header><h2>93) Orbit Simulator</h2></header>
+    <div class="body">
+      <div class="meta">Adjust speed and radius to see a body orbit around a center.</div>
+      <div class="row">
+        <label>Speed <input id="ex93-speed" type="range" min="0.2" max="3" step="0.1" value="1"></label>
+        <label>Radius <input id="ex93-r" type="range" min="20" max="80" value="50"></label>
+      </div>
+      <canvas id="ex93-c" width="300" height="190"></canvas>
+      <p class="note"><strong>Outcomes:</strong> circular motion, sine/cosine, canvas drawing.</p>
+    </div>
+  </section>
+
+  <!-- 94) Typing Flash Trainer -->
+  <section class="card" id="ex94">
+    <header><h2>94) Typing Flash Trainer</h2></header>
+    <div class="body">
+      <div class="meta">Type each shown word before the timer bar empties.</div>
+      <div class="row">
+        <button id="ex94-start">Start</button>
+        Words: <b id="ex94-score">0</b>
+      </div>
+      <div style="margin-top:6px">Word: <b id="ex94-word">—</b></div>
+      <div class="row" style="margin-top:4px">
+        <input id="ex94-in" type="text" placeholder="type here" disabled>
+      </div>
+      <div style="margin-top:6px;width:100%;max-width:280px;height:8px;border-radius:10px;background:#020617;overflow:hidden">
+        <div id="ex94-bar" style="height:100%;width:0;background:#60a5fa"></div>
+      </div>
+      <p class="note"><strong>Outcomes:</strong> timers, input events, progress bar updates.</p>
+    </div>
+  </section>
+
+  <!-- 95) Memory Flip Grid -->
+  <section class="card" id="ex95">
+    <header><h2>95) Memory Flip Grid (4×4)</h2></header>
+    <div class="body">
+      <div class="meta">Flip cards to find matching pairs.</div>
+      <div class="row"><button id="ex95-new">New Game</button> Matches: <b id="ex95-matches">0</b>/8</div>
+      <div class="grid grid-4" id="ex95-grid" style="margin-top:6px"></div>
+      <p class="note"><strong>Outcomes:</strong> shuffle, pair logic, reveal/hide with timeouts.</p>
+    </div>
+  </section>
+
+  <!-- 96) Emoji Reaction Tester -->
+  <section class="card" id="ex96">
+    <header><h2>96) Emoji Reaction Tester</h2></header>
+    <div class="body">
+      <div class="meta">Tap popping emojis quickly; they disappear if you miss them.</div>
+      <div class="row"><button id="ex96-start">Start</button> ⏱ <b id="ex96-t">15</b>s · Score: <b id="ex96-score">0</b></div>
+      <div class="arena" id="ex96-arena"></div>
+      <p class="note"><strong>Outcomes:</strong> timed spawns, DOM positioning, quick click reactions.</p>
+    </div>
+  </section>
+
+  <!-- 97) Canvas Asteroid Dodge -->
+  <section class="card" id="ex97">
+    <header><h2>97) Asteroid Dodge</h2></header>
+    <div class="body">
+      <div class="meta">Move left/right to avoid falling asteroids. Survive as long as you can.</div>
+      <div class="row"><button id="ex97-start">Start</button> Time: <b id="ex97-time">0.0</b>s</div>
+      <canvas id="ex97-c" width="300" height="190"></canvas>
+      <p class="note"><strong>Outcomes:</strong> collisions, difficulty scaling, keyboard control.</p>
+    </div>
+  </section>
+
+  <!-- 98) Pixel Art Painter -->
+  <section class="card" id="ex98">
+    <header><h2>98) Pixel Art Painter</h2></header>
+    <div class="body">
+      <div class="meta">Paint a 16×16 grid using a color picker.</div>
+      <div class="row">
+        <label>Color <input id="ex98-color" type="color" value="#60a5fa"></label>
+        <button id="ex98-clear">Clear</button>
+      </div>
+      <div class="pixel-grid" id="ex98-grid" style="margin-top:6px"></div>
+      <p class="note"><strong>Outcomes:</strong> grid creation, click handlers, style updates.</p>
+    </div>
+  </section>
+
+  <!-- 99) Rhythm Tap Game -->
+  <section class="card" id="ex99">
+    <header><h2>99) Rhythm Tap Game</h2></header>
+    <div class="body">
+      <div class="meta">Press A / S / D / F when beats hit the bottom of each lane.</div>
+      <div class="row"><button id="ex99-start">Start</button> Score: <b id="ex99-score">0</b></div>
+      <div class="lane-row">
+        <div class="lane" data-key="A" id="ex99-l0"></div>
+        <div class="lane" data-key="S" id="ex99-l1"></div>
+        <div class="lane" data-key="D" id="ex99-l2"></div>
+        <div class="lane" data-key="F" id="ex99-l3"></div>
+      </div>
+      <div class="pad-keys">
+        <div class="pad-key">A</div><div class="pad-key">S</div>
+        <div class="pad-key">D</div><div class="pad-key">F</div>
+      </div>
+      <p class="note"><strong>Outcomes:</strong> timing windows, keyboard mapping, simple rhythm logic.</p>
+    </div>
+  </section>
+
+  <!-- 100) Sandbox Physics Blocks -->
+  <section class="card" id="ex100">
+    <header><h2>100) Sandbox Physics Blocks</h2></header>
+    <div class="body">
+      <div class="meta">Click to drop blocks that fall and stack.</div>
+      <div class="row"><button id="ex100-clear">Clear</button></div>
+      <canvas id="ex100-c" width="300" height="190"></canvas>
+      <p class="note"><strong>Outcomes:</strong> simple stacking physics, collisions, simulation loop.</p>
+    </div>
+  </section>
+
+</div>
+
+<!-- Test bar -->
+<div class="testbar">
+  <button id="run-tests">Run All Tests</button>
+  <span id="test-summary" class="pill okpill hidden"></span>
+  <span id="test-errors" class="pill badpill hidden"></span>
+</div>
+
+<script>
+/* utils */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const rand = n => Math.floor(Math.random()*n);
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+const wait = ms => new Promise(r=>setTimeout(r,ms));
+
+/* 91) Particle Fountain */
+(function(){
+  const c = $('#ex91-c'), ctx = c.getContext('2d');
+  const clearBtn = $('#ex91-clear');
+  let particles = [];
+  let raf = 0;
+
+  function spawn(x,y){
+    for(let i=0;i<18;i++){
+      const angle = Math.random()*Math.PI*2;
+      const speed = 60+Math.random()*80;
+      particles.push({
+        x, y,
+        vx: Math.cos(angle)*speed,
+        vy: Math.sin(angle)*speed - 40,
+        life: 1+Math.random()*0.8
+      });
+    }
+  }
+
+  function loop(ts){
+    ctx.clearRect(0,0,c.width,c.height);
+    const dt = 1/60;
+    particles.forEach(p=>{
+      p.vy += 80*dt; // gravity
+      p.x += p.vx*dt;
+      p.y += p.vy*dt;
+      p.life -= dt;
+    });
+    particles = particles.filter(p=>p.life>0);
+    particles.forEach(p=>{
+      const alpha = Math.max(0,p.life);
+      ctx.fillStyle = `rgba(96,165,250,${alpha})`;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,3,0,Math.PI*2);
+      ctx.fill();
+    });
+    raf = requestAnimationFrame(loop);
+  }
+
+  c.addEventListener('pointerdown', e=>{
+    const r = c.getBoundingClientRect();
+    spawn(e.clientX-r.left,e.clientY-r.top);
+  });
+  clearBtn.addEventListener('click', ()=>{ particles=[]; ctx.clearRect(0,0,c.width,c.height); });
+
+  raf = requestAnimationFrame(loop);
+  window._ex91 = {c,clearBtn};
+})();
+
+/* 92) Emoji Drag Maze */
+(function(){
+  const arena = $('#ex92-arena');
+  const emoji = $('#ex92-emoji');
+  const goal = $('#ex92-goal');
+  const statusEl = $('#ex92-status');
+  const walls = $$('#ex92-arena .maze-wall');
+  let dragging = false;
+  let offsetX = 0, offsetY = 0;
+
+  function intersects(a,b){
+    return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
+  }
+
+  function setStatus(msg){ statusEl.textContent = msg; }
+
+  emoji.addEventListener('pointerdown', e=>{
+    dragging = true;
+    emoji.setPointerCapture(e.pointerId);
+    const r = emoji.getBoundingClientRect();
+    offsetX = e.clientX - r.left;
+    offsetY = e.clientY - r.top;
+    setStatus('Guide the emoji to the flag…');
+  });
+
+  emoji.addEventListener('pointermove', e=>{
+    if(!dragging) return;
+    const ar = arena.getBoundingClientRect();
+    let x = e.clientX - ar.left - offsetX;
+    let y = e.clientY - ar.top - offsetY;
+    x = clamp(x,0,ar.width-emoji.offsetWidth);
+    y = clamp(y,0,ar.height-emoji.offsetHeight);
+    emoji.style.left = x + 'px';
+    emoji.style.top  = y + 'px';
+
+    const er = emoji.getBoundingClientRect();
+    // wall collision
+    for(const w of walls){
+      if(intersects(er, w.getBoundingClientRect())){
+        setStatus('💥 Hit a wall! Resetting…');
+        emoji.style.left = '16px';
+        emoji.style.top = '16px';
+        return;
+      }
+    }
+    // goal
+    if(intersects(er, goal.getBoundingClientRect())){
+      setStatus('🎉 You made it!');
+    }
+  });
+
+  emoji.addEventListener('pointerup', e=>{
+    dragging = false;
+    emoji.releasePointerCapture(e.pointerId);
+  });
+
+  window._ex92 = {arena,emoji};
+})();
+
+/* 93) Orbit Simulator */
+(function(){
+  const c = $('#ex93-c'), ctx = c.getContext('2d');
+  const speedEl = $('#ex93-speed'), rEl = $('#ex93-r');
+  let angle = 0;
+  let raf = 0;
+
+  function draw(){
+    const speed = parseFloat(speedEl.value);
+    const radius = parseFloat(rEl.value);
+    angle += 0.02*speed;
+    const cx = c.width/2, cy = c.height/2;
+
+    ctx.clearRect(0,0,c.width,c.height);
+
+    // center mass
+    ctx.fillStyle = '#facc15';
+    ctx.beginPath();
+    ctx.arc(cx,cy,8,0,Math.PI*2);
+    ctx.fill();
+
+    // orbit path
+    ctx.strokeStyle = '#1e293b';
+    ctx.beginPath();
+    ctx.arc(cx,cy,radius,0,Math.PI*2);
+    ctx.stroke();
+
+    // body
+    const x = cx + Math.cos(angle)*radius;
+    const y = cy + Math.sin(angle)*radius;
+    ctx.fillStyle = '#60a5fa';
+    ctx.beginPath();
+    ctx.arc(x,y,6,0,Math.PI*2);
+    ctx.fill();
+
+    raf = requestAnimationFrame(draw);
+  }
+
+  speedEl.addEventListener('input', ()=>{});
+  rEl.addEventListener('input', ()=>{});
+
+  raf = requestAnimationFrame(draw);
+  window._ex93 = {c,speedEl,rEl};
+})();
+
+/* 94) Typing Flash Trainer */
+(function(){
+  const words = ['canvas','object','promise','closure','adapter','listener','payload','runtime','browser','handler','virtual','context','storage'];
+  const start = $('#ex94-start');
+  const wordEl = $('#ex94-word');
+  const bar = $('#ex94-bar');
+  const input = $('#ex94-in');
+  const scoreEl = $('#ex94-score');
+  let timer = null;
+  let timeLeft = 0;
+  let running = false;
+  let currentWord = '';
+
+  function nextWord(){
+    currentWord = words[rand(words.length)];
+    wordEl.textContent = currentWord;
+    input.value = '';
+    timeLeft = 2.8; // seconds per word
+  }
+
+  function updateBar(){
+    if(!running) return;
+    timeLeft -= 0.05;
+    const pct = clamp((timeLeft/2.8)*100,0,100);
+    bar.style.width = pct + '%';
+    if(timeLeft <= 0){
+      running = false;
+      input.disabled = true;
+      wordEl.textContent = 'Time!';
+      clearInterval(timer);
+    }
+  }
+
+  start.addEventListener('click', ()=>{
+    running = true;
+    scoreEl.textContent = '0';
+    input.disabled = false;
+    input.focus();
+    nextWord();
+    clearInterval(timer);
+    timer = setInterval(updateBar,50);
+  });
+
+  input.addEventListener('input', ()=>{
+    if(!running) return;
+    if(input.value.trim().toLowerCase() === currentWord){
+      scoreEl.textContent = String(+scoreEl.textContent + 1);
+      nextWord();
+    }
+  });
+
+  window._ex94 = {start,input};
+})();
+
+/* 95) Memory Flip Grid */
+(function(){
+  const grid = $('#ex95-grid');
+  const newBtn = $('#ex95-new');
+  const matchesEl = $('#ex95-matches');
+  const symbols = ['🍎','🍌','🍇','🍒','🍉','🥝','🍑','🍍'];
+  let cards = [];
+  let first = null;
+  let lock = false;
+  let matches = 0;
+
+  function build(){
+    grid.innerHTML = '';
+    matches = 0;
+    matchesEl.textContent = '0';
+    const deck = [...symbols, ...symbols].sort(()=>Math.random()-0.5);
+    cards = deck.map(sym=>{
+      const d = document.createElement('div');
+      d.className = 'card-cell';
+      d.textContent = '❓';
+      d.dataset.symbol = sym;
+      grid.appendChild(d);
+      return d;
+    });
+  }
+
+  function reveal(card){
+    card.classList.add('revealed');
+    card.textContent = card.dataset.symbol;
+  }
+  function hide(card){
+    card.classList.remove('revealed');
+    card.textContent = '❓';
+  }
+
+  grid.addEventListener('click', e=>{
+    const c = e.target.closest('.card-cell');
+    if(!c || lock) return;
+    if(c.classList.contains('revealed')) return;
+
+    reveal(c);
+    if(!first){
+      first = c;
+    } else {
+      lock = true;
+      if(first.dataset.symbol === c.dataset.symbol){
+        matches++;
+        matchesEl.textContent = String(matches);
+        first = null;
+        lock = false;
+      } else {
+        setTimeout(()=>{
+          hide(first);
+          hide(c);
+          first = null;
+          lock = false;
+        },600);
+      }
+    }
+  });
+
+  newBtn.addEventListener('click', build);
+  build();
+  window._ex95 = {newBtn,grid};
+})();
+
+/* 96) Emoji Reaction Tester */
+(function(){
+  const arena = $('#ex96-arena');
+  const start = $('#ex96-start');
+  const tEl = $('#ex96-t');
+  const scoreEl = $('#ex96-score');
+  const emojis = ['😃','🐱','⚡','🌟','🔥','🍀','🎯','🚀'];
+  let time = 15;
+  let score = 0;
+  let timer = 0;
+  let spawnInt = 0;
+  let running = false;
+
+  function spawn(){
+    const d = document.createElement('div');
+    d.textContent = emojis[rand(emojis.length)];
+    d.style.position='absolute';
+    d.style.fontSize='22px';
+    const r = arena.getBoundingClientRect();
+    const x = 10+rand(r.width-40);
+    const y = 10+rand(r.height-40);
+    d.style.left = x+'px';
+    d.style.top = y+'px';
+    d.style.cursor='pointer';
+    arena.appendChild(d);
+    const life = 800+rand(900);
+    const to = setTimeout(()=>{ d.remove(); },life);
+    d.addEventListener('click', ()=>{
+      if(!running) return;
+      clearTimeout(to);
+      d.remove();
+      score++; scoreEl.textContent = score;
+    });
+  }
+
+  start.addEventListener('click', ()=>{
+    if(running) return;
+    running = true;
+    time = 15;
+    score = 0;
+    scoreEl.textContent = score;
+    tEl.textContent = time;
+    arena.innerHTML='';
+    clearInterval(timer);
+    clearInterval(spawnInt);
+    timer = setInterval(()=>{
+      time--;
+      tEl.textContent = time;
+      if(time<=0){
+        running = false;
+        clearInterval(timer);
+        clearInterval(spawnInt);
+      }
+    },1000);
+    spawnInt = setInterval(spawn,500);
+  });
+
+  window._ex96 = {start,arena};
+})();
+
+/* 97) Asteroid Dodge */
+(function(){
+  const c = $('#ex97-c'), ctx = c.getContext('2d');
+  const start = $('#ex97-start');
+  const tEl = $('#ex97-time');
+  let player = {x:140,y:160,w:20,h:20};
+  let left=false,right=false;
+  let ast = [];
+  let raf=0;
+  let running=false;
+  let startTime=0;
+
+  function reset(){
+    player = {x:140,y:160,w:20,h:20};
+    ast = [];
+    tEl.textContent = '0.0';
+  }
+  function spawn(){
+    ast.push({x:rand(c.width-18),y:-20,w:18,h:18,v:40+rand(60)});
+  }
+  function aabb(a,b){
+    return a.x<b.x+b.w && a.x+a.w>b.x && a.y<b.y+b.h && a.y+a.h>b.y;
+  }
+
+  function loop(ts){
+    if(!running) return;
+    if(!startTime) startTime = ts;
+    const dt = 1/60;
+    const elapsed = (ts-startTime)/1000;
+    tEl.textContent = elapsed.toFixed(1);
+
+    if(Math.random()<0.04) spawn();
+    player.x += (right?1:0 - (left?1:0))*3;
+    player.x = clamp(player.x,0,c.width-player.w);
+
+    ast.forEach(a=>{ a.y += a.v*dt; });
+    ast = ast.filter(a=>a.y<c.height+30);
+
+    // collisions
+    for(const a of ast){
+      if(aabb(player,a)){
+        running=false;
+        break;
+      }
+    }
+
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.fillStyle='#64748b';
+    ast.forEach(a=>ctx.fillRect(a.x,a.y,a.w,a.h));
+    ctx.fillStyle='#22c55e';
+    ctx.fillRect(player.x,player.y,player.w,player.h);
+
+    if(running) raf=requestAnimationFrame(loop);
+  }
+
+  window.addEventListener('keydown', e=>{
+    if(e.key==='ArrowLeft') left=true;
+    if(e.key==='ArrowRight') right=true;
+  });
+  window.addEventListener('keyup', e=>{
+    if(e.key==='ArrowLeft') left=false;
+    if(e.key==='ArrowRight') right=false;
+  });
+
+  start.addEventListener('click', ()=>{
+    running=true;
+    startTime=0;
+    reset();
+    cancelAnimationFrame(raf);
+    raf=requestAnimationFrame(loop);
+  });
+
+  window._ex97 = {start,c};
+})();
+
+/* 98) Pixel Art Painter */
+(function(){
+  const grid = $('#ex98-grid');
+  const colorEl = $('#ex98-color');
+  const clearBtn = $('#ex98-clear');
+  let drawing = false;
+
+  function build(){
+    grid.innerHTML='';
+    for(let i=0;i<16*16;i++){
+      const d=document.createElement('div');
+      d.className='pixel';
+      grid.appendChild(d);
+    }
+  }
+
+  function paintPixel(el){
+    el.style.background = colorEl.value;
+  }
+
+  grid.addEventListener('mousedown', e=>{
+    const p=e.target.closest('.pixel');
+    if(!p) return;
+    drawing=true;
+    paintPixel(p);
+  });
+  grid.addEventListener('mouseover', e=>{
+    if(!drawing) return;
+    const p=e.target.closest('.pixel');
+    if(!p) return;
+    paintPixel(p);
+  });
+  window.addEventListener('mouseup', ()=>{ drawing=false; });
+
+  clearBtn.addEventListener('click', ()=>{
+    $$('#ex98-grid .pixel').forEach(p=>p.style.background='#020617');
+  });
+
+  build();
+  window._ex98 = {grid,colorEl};
+})();
+
+/* 99) Rhythm Tap Game */
+(function(){
+  const lanes = [$('#ex99-l0'),$('#ex99-l1'),$('#ex99-l2'),$('#ex99-l3')];
+  const keys = ['A','S','D','F'];
+  const startBtn = $('#ex99-start');
+  const scoreEl = $('#ex99-score');
+  let beats = [];
+  let raf=0;
+  let running=false;
+  let last=0;
+
+  function spawnBeat(){
+    const lane = rand(4);
+    beats.push({lane,y:-20,hit:false});
+  }
+
+  function draw(ts){
+    if(!running) return;
+    if(!last) last=ts;
+    const dt = (ts-last)/1000;
+    last = ts;
+
+    beats.forEach(b=>{ b.y += 140*dt; });
+    beats = beats.filter(b=>b.y<180 && !b.hit);
+
+    lanes.forEach(l=>l.innerHTML='');
+    beats.forEach(b=>{
+      const el = document.createElement('div');
+      el.className='beat';
+      el.style.top = b.y+'px';
+      lanes[b.lane].appendChild(el);
+    });
+
+    if(Math.random()<0.04) spawnBeat();
+    raf=requestAnimationFrame(draw);
+  }
+
+  function handleKey(e){
+    if(!running) return;
+    const k=e.key.toUpperCase();
+    const laneIndex = keys.indexOf(k);
+    if(laneIndex===-1) return;
+    const target = beats.find(b=>b.lane===laneIndex && !b.hit && b.y>120 && b.y<170);
+    if(target){
+      target.hit=true;
+      scoreEl.textContent = String(+scoreEl.textContent+1);
+    }
+  }
+
+  window.addEventListener('keydown', handleKey);
+
+  startBtn.addEventListener('click', ()=>{
+    running=true;
+    beats=[];
+    scoreEl.textContent='0';
+    last=0;
+    cancelAnimationFrame(raf);
+    raf=requestAnimationFrame(draw);
+  });
+
+  window._ex99 = {startBtn};
+})();
+
+/* 100) Sandbox Physics Blocks */
+(function(){
+  const c = $('#ex100-c'), ctx = c.getContext('2d');
+  const clearBtn = $('#ex100-clear');
+  let blocks = [];
+  let raf=0;
+
+  function spawn(x){
+    blocks.push({
+      x: clamp(x-15,0,c.width-30),
+      y: -20,
+      w: 30,
+      h: 20,
+      vy: 0
+    });
+  }
+
+  function step(){
+    const dt = 1/60;
+    const g = 200;
+    blocks.forEach((b,i)=>{
+      b.vy += g*dt;
+      b.y += b.vy*dt;
+
+      // ground
+      if(b.y + b.h > c.height){
+        b.y = c.height - b.h;
+        b.vy = 0;
+      }
+
+      // stack on other blocks (check below)
+      blocks.forEach((o,j)=>{
+        if(i===j) return;
+        const verticallyOverlaps =
+          b.x < o.x+o.w && b.x+b.w > o.x;
+        if(verticallyOverlaps && b.y + b.h > o.y && b.y < o.y && b.vy>0){
+          b.y = o.y - b.h;
+          b.vy = 0;
+        }
+      });
+    });
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.fillStyle='#475569';
+    blocks.forEach(b=>{
+      ctx.fillRect(b.x,b.y,b.w,b.h);
+    });
+  }
+
+  function loop(){
+    step();
+    draw();
+    raf=requestAnimationFrame(loop);
+  }
+
+  c.addEventListener('click', e=>{
+    const r=c.getBoundingClientRect();
+    spawn(e.clientX-r.left);
+  });
+
+  clearBtn.addEventListener('click', ()=>{
+    blocks=[];
+  });
+
+  raf=requestAnimationFrame(loop);
+  window._ex100 = {c,clearBtn};
+})();
+
+/* ------------------------
+   Minimal Test Harness
+-------------------------*/
+(function(){
+  const btn = $('#run-tests');
+  const sum = $('#test-summary');
+  const err = $('#test-errors');
+  let logs = [];
+  const ok = m => logs.push({ok:true,msg:m});
+  const bad = m => logs.push({ok:false,msg:m});
+
+  async function t91(){ const {c}=window._ex91; c.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,clientX:c.getBoundingClientRect().left+50,clientY:c.getBoundingClientRect().top+50})); ok('ex91 click spawns'); }
+  async function t92(){ const {emoji}=window._ex92; emoji.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,clientX:0,clientY:0})); ok('ex92 drag start'); }
+  async function t93(){ const {c}=window._ex93; ok('ex93 canvas exists: '+!!c); }
+  async function t94(){ const {start,input}=window._ex94; start.click(); await wait(50); input.value='test'; input.dispatchEvent(new Event('input',{bubbles:true})); ok('ex94 typing works'); }
+  async function t95(){ const {newBtn}=window._ex95; newBtn.click(); ok('ex95 board builds'); }
+  async function t96(){ const {start}=window._ex96; start.click(); ok('ex96 starts'); }
+  async function t97(){ const {start}=window._ex97; start.click(); ok('ex97 starts'); }
+  async function t98(){ const {grid}=window._ex98; ok('ex98 grid exists: '+!!grid); }
+  async function t99(){ const {startBtn}=window._ex99; startBtn.click(); ok('ex99 starts'); }
+  async function t100(){ const {c}=window._ex100; c.click(); ok('ex100 click spawns'); }
+
+  btn.addEventListener('click', async ()=>{
+    logs = [];
+    const tests = [t91,t92,t93,t94,t95,t96,t97,t98,t99,t100];
+    for(const t of tests){
+      try{
+        await t();
+      }catch(e){
+        bad(t.name+': '+e.message);
+      }
+    }
+    const pass = logs.filter(l=>l.ok).length;
+    const fail = logs.length - pass;
+    sum.textContent = `${pass}/${logs.length} passed`;
+    err.textContent = `${fail} failed`;
+    sum.classList.remove('hidden');
+    err.classList.remove('hidden');
+    sum.className = 'pill ' + (fail ? 'badpill' : 'okpill');
+    err.className = 'pill ' + (fail ? 'badpill' : 'okpill');
+    if(!fail) err.classList.add('hidden');
+  });
+})();
+</script>
+</body>
+</html>

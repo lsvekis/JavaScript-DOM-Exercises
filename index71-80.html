@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>JavaScript DOM & Canvas Games — Exercises 71–80</title>
+<style>
+  :root{--bg:#0f172a;--panel:#111827;--card:#1f2937;--accent:#60a5fa;--ok:#10b981;--bad:#ef4444;--muted:#9ca3af}
+  body{margin:0;background:var(--bg);color:#e5e7eb;font:15px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  header{padding:1.1rem 1.2rem .4rem}
+  h1{margin:0;font-size:1.35rem}
+  .wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;padding:12px}
+  .card{background:var(--card);border:1px solid #111;border-radius:14px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+  .card header{background:var(--panel);padding:.8rem 1rem;border-bottom:1px solid #000}
+  .card h2{margin:0;font-size:1rem}
+  .card .body{padding:.8rem 1rem}
+  .meta{font-size:.9rem;color:var(--muted);margin:.3rem 0 .6rem}
+  button{background:var(--accent);border:0;color:#06121f;padding:.5rem .8rem;border-radius:10px;cursor:pointer;font-weight:600}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .small{font-size:.85rem;color:#9ca3af}
+  .note{font-size:.9rem;color:#cbd5e1}
+  .arena{position:relative;width:300px;height:190px;border:1px solid #000;border-radius:10px;background:#0b1220;overflow:hidden}
+  .grid{display:grid;gap:6px}
+  .cell{height:40px;border-radius:8px;border:1px solid #000;background:#0b1220;display:grid;place-items:center;cursor:pointer}
+  .grid-5{grid-template-columns:repeat(5,1fr)}
+  .grid-4{grid-template-columns:repeat(4,1fr)}
+  canvas{background:#0b1220;border-radius:10px;border:1px solid #000;display:block}
+  .mole{background:#ef4444}
+  .good{background:#10b981!important}
+  .bad{background:#7f1d1d!important}
+  .cardface{display:grid;place-items:center;font-weight:700}
+  .hidden{visibility:hidden}
+  .testbar{position:sticky;bottom:0;background:#030712cc;border-top:1px solid #000;padding:.6rem 1rem;display:flex;gap:8px;backdrop-filter: blur(6px)}
+  .pill{border-radius:999px;padding:.1rem .5rem;border:1px solid #000}
+  .ok{background:#064e3b;color:#d1fae5}
+  .badpill{background:#7f1d1d;color:#fee2e2}
+  .hanoi{
+  display:flex;
+  gap:12px;
+  align-items:flex-end;
+  justify-content:center;
+  margin-top:8px;
+}
+
+.hanoi .peg{
+  flex:1;
+  min-height:120px;
+  border-radius:10px;
+  border:1px solid #000;
+  background:#020617;
+  display:flex;
+  flex-direction:column-reverse; /* stack from bottom */
+  align-items:center;
+  padding:6px;
+}
+
+.hanoi .disk{
+  height:18px;
+  border-radius:999px;
+  border:1px solid #000;
+  margin-top:4px;
+  background:#60a5fa;
+  transition:transform .1s ease, box-shadow .1s ease;
+}
+
+.hanoi .disk.active-disk{
+  box-shadow:0 0 0 2px #e5e7eb;
+  transform:translateY(-2px);
+}
+
+</style>
+</head>
+<body>
+<header>
+  <h1>JavaScript DOM & Canvas Games — Exercises 71–80</h1>
+  <p class="small">Vanilla JS mini-projects. Click “Run All Tests” to sanity-check wiring.</p>
+</header>
+
+<div class="wrap">
+
+  <!-- 71) Whack-a-Mole -->
+  <section class="card" id="ex71">
+    <header><h2>71) Whack-a-Mole</h2></header>
+    <div class="body">
+      <div class="meta">Moles appear for a moment — click to score. Avoid empty clicks.</div>
+      <div class="row">
+        <button id="ex71-start">Start</button>
+        <span>⏱ <b id="ex71-time">20</b>s</span>
+        <span>Score: <b id="ex71-score">0</b></span>
+        <span>Misses: <b id="ex71-miss">0</b></span>
+      </div>
+      <div id="ex71-grid" class="grid grid-5" style="margin-top:6px"></div>
+      <p class="note"><strong>Outcomes:</strong> intervals, random activation, click gating.</p>
+    </div>
+  </section>
+
+  <!-- 72) Typing Sprint -->
+  <section class="card" id="ex72">
+    <header><h2>72) Typing Sprint</h2></header>
+    <div class="body">
+      <div class="meta">Type short prompts quickly — mistakes clear the input.</div>
+      <div class="row">
+        <button id="ex72-start">Start</button>
+        <span>⏱ <b id="ex72-time">20</b>s</span>
+        <span>Correct: <b id="ex72-ok">0</b></span>
+      </div>
+      <div class="row" style="margin-top:6px">
+        <b id="ex72-prompt">—</b>
+        <input id="ex72-in" type="text" disabled placeholder="type here"/>
+      </div>
+      <p class="note"><strong>Outcomes:</strong> input events, string compare, round flow.</p>
+    </div>
+  </section>
+
+  <!-- 73) Memory (4x4) -->
+  <section class="card" id="ex73">
+    <header><h2>73) Memory Flip 4×4</h2></header>
+    <div class="body">
+      <div class="meta">Find all pairs with as few flips as possible.</div>
+      <div class="row"><span>Flips: <b id="ex73-flips">0</b></span><button id="ex73-new">New</button></div>
+      <div id="ex73-grid" class="grid grid-4" style="margin-top:6px"></div>
+      <p class="note"><strong>Outcomes:</strong> state machine, matching, reveal/hide logic.</p>
+    </div>
+  </section>
+
+  <!-- 74) Snake Lite -->
+  <section class="card" id="ex74">
+    <header><h2>74) Snake Lite (Canvas)</h2></header>
+    <div class="body">
+      <div class="meta">Arrow keys to move. Eat food, avoid walls/self.</div>
+      <div class="row"><button id="ex74-start">Start</button> Score: <b id="ex74-score">0</b></div>
+      <canvas id="ex74-c" width="300" height="190"></canvas>
+      <p class="note"><strong>Outcomes:</strong> grid movement, collisions, game loop.</p>
+    </div>
+  </section>
+
+  <!-- 75) Rhythm Tapper -->
+  <section class="card" id="ex75">
+    <header><h2>75) Rhythm Tapper</h2></header>
+    <div class="body">
+      <div class="meta">Tap on the beat! Click when the bar hits the center.</div>
+      <div class="row"><button id="ex75-start">Start</button> Hits: <b id="ex75-hits">0</b> | Misses: <b id="ex75-miss">0</b></div>
+      <canvas id="ex75-c" width="300" height="60"></canvas>
+      <p class="note"><strong>Outcomes:</strong> timing windows, input accuracy, easing.</p>
+    </div>
+  </section>
+
+  <!-- 76) Mouse Path Drawer -->
+  <section class="card" id="ex76">
+    <header><h2>76) Mouse Path Drawer</h2></header>
+    <div class="body">
+      <div class="meta">Hold mouse to draw; release to stop.</div>
+      <div class="row"><button id="ex76-clear">Clear</button></div>
+      <canvas id="ex76-c" width="300" height="190"></canvas>
+      <p class="note"><strong>Outcomes:</strong> pointer events, drawing, paths.</p>
+    </div>
+  </section>
+
+<!-- 77) Towers of Hanoi (3) -->
+<section class="card" id="ex77">
+  <header><h2>77) Towers of Hanoi (3)</h2></header>
+  <div class="body">
+    <div class="meta">Move all 3 disks from the left peg to the right peg in as few moves as possible.</div>
+    <p class="small">Click a peg to pick up the top disk, then click another peg to drop it.</p>
+    <div class="hanoi" id="ex77-board">
+      <div class="peg" data-i="0"></div>
+      <div class="peg" data-i="1"></div>
+      <div class="peg" data-i="2"></div>
+    </div>
+    <div class="row" style="margin-top:6px">
+      Moves: <b id="ex77-moves">0</b>
+      <span>· Status: <b id="ex77-status">Solve in 7 moves if you can!</b></span>
+      <button id="ex77-reset">Reset</button>
+    </div>
+    <p class="note"><strong>Outcomes:</strong> stack logic, move validation, game rules enforcement.</p>
+  </div>
+</section>
+
+
+  <!-- 78) Infinite Scroller -->
+  <section class="card" id="ex78">
+    <header><h2>78) Infinite Scroller</h2></header>
+    <div class="body">
+      <div class="meta">Move with ↑/↓ to dodge blocks. Survive as long as you can.</div>
+      <div class="row"><button id="ex78-start">Start</button> Time: <b id="ex78-t">0.0</b>s</div>
+      <canvas id="ex78-c" width="300" height="190"></canvas>
+      <p class="note"><strong>Outcomes:</strong> obstacle spawn, collision rects, pacing.</p>
+    </div>
+  </section>
+
+  <!-- 79) Paint Bucket (Flood Fill) -->
+  <section class="card" id="ex79">
+    <header><h2>79) Paint Bucket (Flood Fill)</h2></header>
+    <div class="body">
+      <div class="meta">Click to flood-fill a region with a color.</div>
+      <div class="row"><button id="ex79-new">New</button></div>
+      <canvas id="ex79-c" width="300" height="190"></canvas>
+      <p class="note"><strong>Outcomes:</strong> image data, BFS flood, canvas pixels.</p>
+    </div>
+  </section>
+
+  <!-- 80) Quiz: Sorting Hat -->
+  <section class="card" id="ex80">
+    <header><h2>80) Sorting Hat Quiz</h2></header>
+    <div class="body">
+      <div class="meta">Answer 5 quick choices; see your “house”.</div>
+      <div id="ex80-qs" style="margin-top:6px"></div>
+      <div class="row" style="margin-top:6px"><button id="ex80-submit">Submit</button> Result: <b id="ex80-res">—</b></div>
+      <p class="note"><strong>Outcomes:</strong> forms, scoring weights, simple results.</p>
+    </div>
+  </section>
+
+</div>
+
+<!-- Test bar -->
+<div class="testbar">
+  <button id="run-tests">Run All Tests</button>
+  <span id="test-summary" class="pill ok hidden"></span>
+  <span id="test-errors" class="pill badpill hidden"></span>
+</div>
+
+<script>
+/* utils */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const rand = n => Math.floor(Math.random()*n);
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+const wait = ms => new Promise(r=>setTimeout(r,ms));
+
+/* 71) Whack-a-Mole */
+(function(){
+  const grid=$('#ex71-grid'), start=$('#ex71-start'), tEl=$('#ex71-time'), scoreEl=$('#ex71-score'), missEl=$('#ex71-miss');
+  let cells=[], score=0, miss=0, t=20, timer=null, mole=null, playing=false;
+  for(let i=0;i<25;i++){ const d=document.createElement('div'); d.className='cell'; grid.appendChild(d); cells.push(d); }
+  function clear(){ cells.forEach(c=>c.classList.remove('mole','good','bad')); mole=null; }
+  function pop(){ clear(); mole = cells[rand(25)]; mole.classList.add('mole'); setTimeout(()=>{ if(mole){ mole.classList.remove('mole'); mole=null; miss++; missEl.textContent=miss; } }, 900); }
+  start.addEventListener('click', ()=>{
+    if(playing) return; playing=true; score=0; miss=0; t=20; scoreEl.textContent=score; missEl.textContent=miss; tEl.textContent=t; pop();
+    clearInterval(timer);
+    timer=setInterval(()=>{ t--; tEl.textContent=t; pop(); if(t<=0){ clearInterval(timer); clear(); playing=false; } },1000);
+  });
+  grid.addEventListener('click', e=>{
+    if(!playing || !e.target.classList.contains('cell')) return;
+    if(e.target===mole){ score++; scoreEl.textContent=score; e.target.classList.remove('mole'); e.target.classList.add('good'); mole=null; }
+    else{ miss++; missEl.textContent=miss; e.target.classList.add('bad'); setTimeout(()=>e.target.classList.remove('bad'),300); }
+  });
+  window._ex71={start,grid};
+})();
+
+/* 72) Typing Sprint */
+(function(){
+  const phrases = [
+    'vanilla js rocks','learn by building','front end fun','event driven code','clean simple fast',
+    'typing practice','ship small games','dom and canvas','arrays and loops','debug and refine'
+  ];
+  const start=$('#ex72-start'), tEl=$('#ex72-time'), okEl=$('#ex72-ok'), promptEl=$('#ex72-prompt'), input=$('#ex72-in');
+  let t=20, ok=0, cur='', timer=null, playing=false;
+  function newPrompt(){ cur = phrases[rand(phrases.length)]; promptEl.textContent=cur; input.value=''; }
+  start.addEventListener('click', ()=>{
+    if(playing) return; playing=true; ok=0; okEl.textContent=ok; t=20; tEl.textContent=t; input.disabled=false; input.focus(); newPrompt();
+    clearInterval(timer);
+    timer=setInterval(()=>{ t--; tEl.textContent=t; if(t<=0){ clearInterval(timer); input.disabled=true; promptEl.textContent='—'; playing=false; } },1000);
+  });
+  input.addEventListener('input', ()=>{
+    const v=input.value;
+    if(!cur.startsWith(v)){ input.value=''; return; }
+    if(v===cur){ ok++; okEl.textContent=ok; newPrompt(); }
+  });
+  window._ex72={start,input};
+})();
+
+/* 73) Memory 4x4 */
+(function(){
+  const grid=$('#ex73-grid'), flipsEl=$('#ex73-flips'), newBtn=$('#ex73-new');
+  const icons = ['🍎','🍌','🍇','🍒','🍑','🥝','🍍','🍉'];
+  let deck=[], open=[], done=0, flips=0, lock=false;
+  function build(){
+    grid.innerHTML=''; deck = [...icons, ...icons].sort(()=>Math.random()-0.5);
+    open=[]; done=0; flips=0; flipsEl.textContent=flips; lock=false;
+    deck.forEach((v,i)=>{
+      const d=document.createElement('div'); d.className='cell cardface'; d.dataset.i=i; d.dataset.v=v; d.textContent='?';
+      grid.appendChild(d);
+    });
+  }
+  grid.addEventListener('click', e=>{
+    const d=e.target.closest('.cell'); if(!d || lock) return;
+    const i=+d.dataset.i; if(d.dataset.matched==='1' || d.textContent===d.dataset.v) return;
+    d.textContent=d.dataset.v; open.push(d); if(open.length===2){ lock=true; flips++; flipsEl.textContent=flips;
+      setTimeout(()=>{ const [a,b]=open; if(a.dataset.v===b.dataset.v){ a.dataset.matched='1'; b.dataset.matched='1'; done+=2; } else { a.textContent='?'; b.textContent='?'; } open=[]; lock=false; }, 550);
+    }
+  });
+  newBtn.addEventListener('click', build);
+  build();
+  window._ex73={newBtn,grid};
+})();
+
+/* 74) Snake Lite */
+(function(){
+  const c=$('#ex74-c'), ctx=c.getContext('2d'), start=$('#ex74-start'), scoreEl=$('#ex74-score');
+  const CW=15, CH=10, SZ=18; // grid cells and size
+  let snake, dir, food, alive=false, last=0, accum=0, score=0;
+  function placeFood(){ food = {x:rand(CW), y:rand(CH)}; }
+  function reset(){ snake=[{x:3,y:5},{x:2,y:5},{x:1,y:5}]; dir={x:1,y:0}; placeFood(); score=0; scoreEl.textContent=score; }
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    // grid optional
+    ctx.fillStyle='#f59e0b'; ctx.fillRect(food.x*SZ+3, food.y*SZ+3, SZ-6, SZ-6);
+    ctx.fillStyle='#60a5fa';
+    snake.forEach(s=>ctx.fillRect(s.x*SZ+2, s.y*SZ+2, SZ-4, SZ-4));
+  }
+  function step(){
+    const head = {x:snake[0].x+dir.x, y:snake[0].y+dir.y};
+    if(head.x<0||head.x>=CW||head.y<0||head.y>=CH|| snake.some(s=>s.x===head.x&&s.y===head.y)){ alive=false; return; }
+    snake.unshift(head);
+    if(head.x===food.x && head.y===food.y){ score++; scoreEl.textContent=score; placeFood(); }
+    else{ snake.pop(); }
+  }
+  function loop(ts){
+    if(!alive) return;
+    if(!last) last=ts; const dt=(ts-last)/1000; last=ts; accum+=dt;
+    if(accum>0.12){ accum=0; step(); }
+    draw(); requestAnimationFrame(loop);
+  }
+  window.addEventListener('keydown', e=>{
+    if(e.key==='ArrowUp' && dir.y!==1) dir={x:0,y:-1};
+    if(e.key==='ArrowDown' && dir.y!==-1) dir={x:0,y:1};
+    if(e.key==='ArrowLeft' && dir.x!==1) dir={x:-1,y:0};
+    if(e.key==='ArrowRight' && dir.x!==-1) dir={x:1,y:0};
+  });
+  start.addEventListener('click', ()=>{ alive=true; reset(); last=0; requestAnimationFrame(loop); });
+  // init
+  c.width=CW*SZ; c.height=CH*SZ; reset(); draw();
+  window._ex74={start,c};
+})();
+
+/* 75) Rhythm Tapper */
+(function(){
+  const c=$('#ex75-c'), ctx=c.getContext('2d'), start=$('#ex75-start'), hitsEl=$('#ex75-hits'), missEl=$('#ex75-miss');
+  let t=0, raf=0, hits=0, miss=0, armed=false;
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    // center marker
+    ctx.fillStyle='#9ca3af'; ctx.fillRect(c.width/2-2,0,4,c.height);
+    // moving bar
+    const x = (Math.sin(t*2*Math.PI)+1)/2 * (c.width-20) + 10;
+    ctx.fillStyle='#60a5fa'; ctx.fillRect(x-3,0,6,c.height);
+  }
+  function loop(ts){
+    t += 0.015; // speed
+    draw(); raf=requestAnimationFrame(loop);
+  }
+  start.addEventListener('click', ()=>{
+    if(raf) cancelAnimationFrame(raf);
+    hits=miss=0; hitsEl.textContent=hits; missEl.textContent=miss; t=0; raf=requestAnimationFrame(loop); armed=true;
+  });
+  c.addEventListener('click', ()=>{
+    if(!armed) return;
+    const x = (Math.sin(t*2*Math.PI)+1)/2 * (c.width-20) + 10;
+    const dist = Math.abs(x - c.width/2);
+    if(dist<12){ hits++; hitsEl.textContent=hits; }
+    else{ miss++; missEl.textContent=miss; }
+  });
+  draw();
+  window._ex75={start,c};
+})();
+
+/* 76) Mouse Path Drawer */
+(function(){
+  const c=$('#ex76-c'), ctx=c.getContext('2d'), clearBtn=$('#ex76-clear');
+  let drawing=false, last=null;
+  function toLocal(e){ const r=c.getBoundingClientRect(); return {x:e.clientX-r.left, y:e.clientY-r.top}; }
+  c.addEventListener('pointerdown', e=>{ drawing=true; last=toLocal(e); });
+  c.addEventListener('pointerup', ()=>{ drawing=false; last=null; });
+  c.addEventListener('pointerleave', ()=>{ drawing=false; last=null; });
+  c.addEventListener('pointermove', e=>{
+    if(!drawing) return;
+    const p=toLocal(e);
+    ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.strokeStyle='#60a5fa'; ctx.lineWidth=2; ctx.stroke();
+    last=p;
+  });
+  clearBtn.addEventListener('click', ()=>ctx.clearRect(0,0,c.width,c.height));
+  window._ex76={c,clearBtn};
+})();
+
+/* 77) Towers of Hanoi (3 disks – click-to-move) */
+(function(){
+  const board = document.querySelector('#ex77-board');
+  if (!board) return; // in case this card is not present
+
+  const pegs = Array.from(board.querySelectorAll('.peg'));
+  const movesEl = document.querySelector('#ex77-moves');
+  const statusEl = document.querySelector('#ex77-status');
+  const resetBtn = document.querySelector('#ex77-reset');
+
+  let holding = null;   // currently picked disk element
+  let fromPeg = null;   // peg we picked it from
+  let moves = 0;
+
+  function build() {
+    // clear pegs
+    pegs.forEach(p => p.innerHTML = '');
+    // build 3 disks on left peg (size 3 bottom → 1 top)
+    for (let size = 3; size >= 1; size--) {
+      const d = document.createElement('div');
+      d.className = 'disk';
+      d.dataset.size = String(size);
+      d.style.width = (40 + size * 20) + 'px';
+      d.style.background =
+        size === 1 ? '#22c55e' :
+        size === 2 ? '#60a5fa' :
+                      '#f97316';
+      pegs[0].appendChild(d);
+    }
+    holding = null;
+    fromPeg = null;
+    moves = 0;
+    movesEl.textContent = '0';
+    statusEl.textContent = 'Solve in 7 moves if you can!';
+  }
+
+  function topDisk(peg) {
+    const disks = peg.querySelectorAll('.disk');
+    return disks[disks.length - 1] || null;
+  }
+
+  function checkWin() {
+    const lastPegDisks = pegs[2].querySelectorAll('.disk').length;
+    if (lastPegDisks === 3) {
+      const optimal = 7;
+      statusEl.textContent =
+        moves === optimal
+          ? '🎉 Perfect! You solved it in 7 moves.'
+          : `✅ Solved in ${moves} moves (optimal is 7).`;
+    }
+  }
+
+  function handlePegClick(e) {
+    const peg = e.currentTarget;
+
+    // If not holding anything, pick up top disk from this peg
+    if (!holding) {
+      const d = topDisk(peg);
+      if (!d) return; // empty peg
+      holding = d;
+      fromPeg = peg;
+      d.classList.add('active-disk');
+      statusEl.textContent = 'Now click another peg to drop the disk.';
+      return;
+    }
+
+    // If clicking the same peg again, cancel selection
+    if (peg === fromPeg) {
+      holding.classList.remove('active-disk');
+      holding = null;
+      fromPeg = null;
+      statusEl.textContent = 'Move cancelled. Pick another peg.';
+      return;
+    }
+
+    // Try to drop: check rule “no larger on smaller”
+    const targetTop = topDisk(peg);
+    const fromSize = +holding.dataset.size;
+    const targetSize = targetTop ? +targetTop.dataset.size : Infinity;
+
+    if (fromSize > targetSize) {
+      statusEl.textContent = '❌ Illegal move: larger disk cannot go on a smaller disk.';
+      return;
+    }
+
+    // Legal move — perform it
+    holding.classList.remove('active-disk');
+    peg.appendChild(holding);
+    holding = null;
+    fromPeg = null;
+
+    moves++;
+    movesEl.textContent = String(moves);
+    statusEl.textContent = `Moves: ${moves}`;
+    checkWin();
+  }
+
+  pegs.forEach(p => p.addEventListener('click', handlePegClick));
+  resetBtn.addEventListener('click', build);
+
+  // initial setup
+  build();
+
+  // expose for your test harness if needed
+  window._ex77 = { build, pegs };
+})();
+
+
+/* 78) Infinite Scroller */
+(function(){
+  const c=$('#ex78-c'), ctx=c.getContext('2d'), start=$('#ex78-start'), tEl=$('#ex78-t');
+  let player, obs, last=0, running=false, since=0;
+  function reset(){
+    player={y:c.height/2, h:26, w:14};
+    obs=[]; since=0; tEl.textContent='0.0';
+  }
+  function spawn(){
+    const y=20+rand(c.height-40), w=16+rand(14), h=20+rand(40), v=120+rand(80);
+    obs.push({x:c.width+20,y:y,w:w,h:h,v:v});
+  }
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    // player
+    ctx.fillStyle='#60a5fa'; ctx.fillRect(14, player.y-player.h/2, player.w, player.h);
+    // obstacles
+    ctx.fillStyle='#ef4444';
+    obs.forEach(o=>ctx.fillRect(o.x, o.y, o.w, o.h));
+  }
+  function loop(ts){
+    if(!running) return;
+    if(!last) last=ts; const dt=(ts-last)/1000; last=ts; since+=dt;
+    // spawn
+    if(Math.random()<0.025) spawn();
+    // move obstacles
+    obs.forEach(o=>o.x -= o.v*dt);
+    obs = obs.filter(o=>o.x>-30);
+    // collision
+    const px=14, py=player.y-player.h/2, pw=player.w, ph=player.h;
+    for(const o of obs){
+      if(px < o.x+o.w && px+pw > o.x && py < o.y+o.h && py+ph > o.y){ running=false; }
+    }
+    if(running) tEl.textContent = (parseFloat(tEl.textContent)+dt).toFixed(1);
+    draw(); requestAnimationFrame(loop);
+  }
+  window.addEventListener('keydown', e=>{
+    if(e.key==='ArrowUp') player.y = clamp(player.y-12, 15, c.height-15);
+    if(e.key==='ArrowDown') player.y = clamp(player.y+12, 15, c.height-15);
+  });
+  start.addEventListener('click', ()=>{ running=true; last=0; reset(); requestAnimationFrame(loop); });
+  reset(); draw();
+  window._ex78={start,c};
+})();
+
+/* 79) Paint Bucket (Flood Fill) */
+(function(){
+  const c=$('#ex79-c'), ctx=c.getContext('2d'), newBtn=$('#ex79-new');
+  const W=c.width, H=c.height;
+  function randomScene(){
+    ctx.clearRect(0,0,W,H);
+    // draw a few random shapes to create regions
+    for(let i=0;i<8;i++){
+      ctx.fillStyle=`hsl(${rand(360)},30%,${40+rand(20)}%)`;
+      ctx.fillRect(rand(W-80), rand(H-60), 40+rand(80), 30+rand(70));
+    }
+    ctx.strokeStyle='#000'; ctx.lineWidth=2;
+    for(let i=0;i<3;i++){ // outlines to create boundaries
+      ctx.strokeRect(rand(W-100), rand(H-80), 60+rand(100), 40+rand(100));
+    }
+  }
+  function fill(x,y){
+    const img=ctx.getImageData(0,0,W,H), data=img.data;
+    const idx=(x,y)=> (y*W+x)*4;
+    const sr= data[idx(x,y)+0], sg=data[idx(x,y)+1], sb=data[idx(x,y)+2], sa=data[idx(x,y)+3];
+    const nr=96, ng=165, nb=250, na=255; // target color
+    if(sr===nr && sg===ng && sb===nb && sa===na) return;
+    const q=[[x,y]]; const seen=new Uint8Array(W*H);
+    while(q.length){
+      const [cx,cy]=q.pop(); const i=idx(cx,cy);
+      if(cx<0||cy<0||cx>=W||cy>=H) continue;
+      if(seen[cy*W+cx]) continue; seen[cy*W+cx]=1;
+      const r=data[i], g=data[i+1], b=data[i+2], a=data[i+3];
+      if(r===sr && g===sg && b===sb && a===sa){
+        data[i]=nr; data[i+1]=ng; data[i+2]=nb; data[i+3]=na;
+        q.push([cx+1,cy],[cx-1,cy],[cx,cy+1],[cx,cy-1]);
+      }
+    }
+    ctx.putImageData(img,0,0);
+  }
+  c.addEventListener('click', e=>{
+    const r=c.getBoundingClientRect(); const x=Math.floor(e.clientX-r.left), y=Math.floor(e.clientY-r.top);
+    fill(x,y);
+  });
+  newBtn.addEventListener('click', randomScene);
+  randomScene();
+  window._ex79={newBtn,c};
+})();
+
+/* 80) Sorting Hat Quiz */
+(function(){
+  const qsEl=$('#ex80-qs'), submit=$('#ex80-submit'), res=$('#ex80-res');
+  const qs = [
+    {q:'Pick a trait', o:{brave:'Gryff', wise:'Raven', loyal:'Huffle', cunning:'Slyth'}},
+    {q:'Pick a place', o:{forest:'Gryff', library:'Raven', kitchen:'Huffle', dungeon:'Slyth'}},
+    {q:'Pick a pet', o:{owl:'Raven', cat:'Gryff', badger:'Huffle', snake:'Slyth'}},
+    {q:'Pick a hobby', o:{dueling:'Gryff', riddles:'Raven', gardening:'Huffle', networking:'Slyth'}},
+    {q:'Pick a color', o:{red:'Gryff', blue:'Raven', yellow:'Huffle', green:'Slyth'}}
+  ];
+  function build(){
+    qsEl.innerHTML='';
+    qs.forEach((q,i)=>{
+      const wrap=document.createElement('div'); wrap.style.margin='6px 0';
+      const h=document.createElement('div'); h.textContent=(i+1)+') '+q.q; qsEl.appendChild(h);
+      const row=document.createElement('div'); row.className='row';
+      Object.entries(q.o).forEach(([k,v])=>{
+        const id=`q${i}-${k}`;
+        const lab=document.createElement('label'); lab.style.display='flex'; lab.style.alignItems='center'; lab.style.gap='6px';
+        const inp=document.createElement('input'); inp.type='radio'; inp.name='q'+i; inp.value=v; inp.id=id;
+        const span=document.createElement('span'); span.textContent=k;
+        lab.append(inp, span); row.appendChild(lab);
+      });
+      wrap.appendChild(row); qsEl.appendChild(wrap);
+    });
+  }
+  function score(){
+    const tallies={Gryff:0,Raven:0,Huffle:0,Slyth:0};
+    for(let i=0;i<qs.length;i++){
+      const v=(qsEl.querySelector('input[name="q'+i+'"]:checked')||{}).value;
+      if(v) tallies[v]++;
+    }
+    const best = Object.entries(tallies).sort((a,b)=>b[1]-a[1])[0];
+    return best && best[0] || '—';
+  }
+  submit.addEventListener('click', ()=>{ res.textContent = score(); });
+  build();
+  window._ex80={submit,qsEl};
+})();
+
+/* ------------------------
+   Minimal Test Harness
+-------------------------*/
+(function(){
+  const btn=$('#run-tests'), sum=$('#test-summary'), err=$('#test-errors');
+  let logs=[];
+  const ok = m=>logs.push({ok:true,msg:m});
+  const bad = m=>logs.push({ok:false,msg:m});
+
+  async function t71(){ const {start,grid}=window._ex71; start.click(); await wait(300); grid.click(); ok('ex71 running'); }
+  async function t72(){ const {start,input}=window._ex72; start.click(); await wait(50); ok('ex72 start'); }
+  async function t73(){ const {newBtn}=window._ex73; newBtn.click(); ok('ex73 builds'); }
+  async function t74(){ const {start}=window._ex74; start.click(); ok('ex74 starts'); }
+  async function t75(){ const {start}=window._ex75; start.click(); ok('ex75 animates'); }
+  async function t76(){ const {c,clearBtn}=window._ex76; clearBtn.click(); c.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,clientX:c.getBoundingClientRect().left+10,clientY:c.getBoundingClientRect().top+10})); ok('ex76 events'); }
+  async function t77(){ const {newBtn}=window._ex77; newBtn.click(); ok('ex77 reset'); }
+  async function t78(){ const {start}=window._ex78; start.click(); ok('ex78 start'); }
+  async function t79(){ const {newBtn}=window._ex79; newBtn.click(); ok('ex79 scene'); }
+  async function t80(){ const {submit}=window._ex80; submit.click(); ok('ex80 submit'); }
+
+  btn.addEventListener('click', async ()=>{
+    logs=[];
+    const tests=[t71,t72,t73,t74,t75,t76,t77,t78,t79,t80];
+    for(const t of tests){
+      try{ await t(); }catch(e){ bad(t.name+': '+e.message); }
+    }
+    const pass = logs.filter(l=>l.ok).length, fail = logs.length-pass;
+    sum.textContent = `${pass}/${logs.length} passed`;
+    err.textContent = `${fail} failed`;
+    sum.classList.remove('hidden'); err.classList.remove('hidden');
+    sum.className='pill '+(fail?'badpill':'ok');
+    err.className='pill '+(fail?'badpill':'ok');
+    if(!fail) err.classList.add('hidden');
+  });
+})();
+</script>
+</body>
+</html>
